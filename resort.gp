@@ -1,5 +1,5 @@
 set output 'introduction.png'
-set view 332,0
+set view 307,6
 
 unset key; unset border; unset tics;
 
