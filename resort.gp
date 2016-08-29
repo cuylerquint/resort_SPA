@@ -16,9 +16,9 @@ set title 'Resort'
 set label "1" at 0,500,0
 
 
+#"chairs.dat" with lines ls 4, \
 
 splot 'resort.dat' using 1:2:3 with points ls 3, \
-"chairs.dat" with lines ls 4, \
 "easy.dat" with lines ls 1, \
 "med.dat" with lines ls 2, \
 "expert.dat" with lines ls 3, \

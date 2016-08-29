@@ -11,12 +11,12 @@ void init_Waypoint(Waypoint * me,int id, int x, int y, int z, int weight){
 	me->weight = weight;
 }
 
-void init_Trail(Trail * this, int id ,int diff,int weight, Waypoint * top, Waypoint * bot){
+void init_Trail(Trail * this, int id ,int diff, Waypoint * top, Waypoint * bot){
 	this->id = id;
 	this->diff = diff;
 	this->top = *top;
 	this->bot = *bot;
-	this->weight = weight;
+	this->weight = this->set_weight();
 }
 void init_Chair(Chair * this, int id ,int weight, Waypoint * top, Waypoint * bot){
 	this->id = id;
@@ -25,32 +25,37 @@ void init_Chair(Chair * this, int id ,int weight, Waypoint * top, Waypoint * bot
 	this->weight = weight;
 }
 
-void make_default_waypoints(Waypoint * point){
-	init_Waypoint(&point[0],1,0,500,0,0);
-	init_Waypoint(&point[1],2,0,400,100,0);
-	init_Waypoint(&point[2],3,100,400,100,0);
-	init_Waypoint(&point[3],4,100,400,0,0);
-	init_Waypoint(&point[4],5,0,300,200,0);
-	init_Waypoint(&point[5],6,200,300,200,0);
-	init_Waypoint(&point[6],7,200,300,0,0);
-	init_Waypoint(&point[7],8,0,200,300,0);
-	init_Waypoint(&point[8],9,300,200,300,0);
-	init_Waypoint(&point[9],10,300,200,0,0);
-	init_Waypoint(&point[10],11,0,100,400,0);
-	init_Waypoint(&point[11],12,400,100,400,0);
-	init_Waypoint(&point[12],13,400,100,0,0);
-	init_Waypoint(&point[13],14,0,0,500,0);
-	init_Waypoint(&point[14],15,250,0,500,0);
-	init_Waypoint(&point[15],16,500,0,500,0);
-	init_Waypoint(&point[16],17,500,0,250,0);
-	init_Waypoint(&point[17],18,500,0,0,0);
-	init_Waypoint(&point[18],19,175,100,250,0);
-	init_Waypoint(&point[19],20,250,500,175,0);
+void make_default_waypoints(Waypoint * waypoints){
+	init_Waypoint(&waypoints[0],1,0,500,0,0);
+	init_Waypoint(&waypoints[1],2,0,400,100,0);
+	init_Waypoint(&waypoints[2],3,100,400,100,0);
+	init_Waypoint(&waypoints[3],4,100,400,0,0);
+	init_Waypoint(&waypoints[4],5,0,300,200,0);
+	init_Waypoint(&waypoints[5],6,200,300,200,0);
+	init_Waypoint(&waypoints[6],7,200,300,0,0);
+	init_Waypoint(&waypoints[7],8,0,200,300,0);
+	init_Waypoint(&waypoints[8],9,300,200,300,0);
+	init_Waypoint(&waypoints[9],10,300,200,0,0);
+	init_Waypoint(&waypoints[10],11,0,100,400,0);
+	init_Waypoint(&waypoints[11],12,400,100,400,0);
+	init_Waypoint(&waypoints[12],13,400,100,0,0);
+	init_Waypoint(&waypoints[13],14,0,0,500,0);
+	init_Waypoint(&waypoints[14],15,250,0,500,0);
+	init_Waypoint(&waypoints[15],16,500,0,500,0);
+	init_Waypoint(&waypoints[16],17,500,0,250,0);
+	init_Waypoint(&waypoints[17],18,500,0,0,0);
+	init_Waypoint(&waypoints[18],19,175,100,250,0);
+	init_Waypoint(&waypoints[19],20,250,500,175,0);
 	
-	init_Waypoint(&point[20],19,175,100,250,0);
-	init_Waypoint(&point[21],20,250,500,175,0);
 	
 }
+
+void make_default_trails(Trial * trails, Waypoint * waypoints){
+	init_Trail(&trials[0],1,1,
+
+
+}
+
 
 void make_default_chairs(Chair * chairs, Waypoint * waypoints){
 	init_Chair(&chairs[0],1,7,&waypoints[4],&waypoints[14]);
@@ -85,9 +90,11 @@ void setup_route(Waypoint * waypoints,int input_data[]){
 	}
 }
 int setup(){
-	Waypoint waypoints[22];
-	make_default_waypoints(waypoints);
+	Waypoint waypoints[20];
+	Trail trails[29];
 	Chair chairs[10];
+	make_default_waypoints(waypoints);
+	make_defualt_trails(trails,waypoints);
 	make_default_chairs(chairs,waypoints);
 //	init_resort();
 //	display_default_plot();
