@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "waypoint.h"
 #include "trail.h"
 #include "chair.h"
+
 
 void init_Waypoint(Waypoint * me,int id, int x, int y, int z, int weight){
 	me->id = id;
@@ -16,7 +18,7 @@ void init_Trail(Trail * this, int id ,int diff, Waypoint * top, Waypoint * bot){
 	this->diff = diff;
 	this->top = *top;
 	this->bot = *bot;
-	this->weight = this->set_weight();
+//	this->weight = this->set_weight();
 }
 void init_Chair(Chair * this, int id ,int weight, Waypoint * top, Waypoint * bot){
 	this->id = id;
@@ -50,9 +52,10 @@ void make_default_waypoints(Waypoint * waypoints){
 	
 }
 
-void make_default_trails(Trial * trails, Waypoint * waypoints){
-	init_Trail(&trials[0],1,1,
-
+void make_default_trails(Trail * trails, Waypoint * waypoints){
+	init_Trail(&trails[0],1,1,&waypoints[0],&waypoints[4]);
+	trails[0].set_weight(&trails[0]);	
+//  NEED TO FIRGURE OUT WHY THIS FAULTS ^^^
 
 }
 
@@ -91,10 +94,14 @@ void setup_route(Waypoint * waypoints,int input_data[]){
 }
 int setup(){
 	Waypoint waypoints[20];
-	Trail trails[29];
+	Trail **trails = malloc(29 * sizeof(Trail*));
+	for(int i = 0 ; i < 29;i++)
+	{
+	trails[i] =  malloc(sizeof(Trail));
+	}
 	Chair chairs[10];
 	make_default_waypoints(waypoints);
-	make_defualt_trails(trails,waypoints);
+	make_default_trails(*trails,waypoints);
 	make_default_chairs(chairs,waypoints);
 //	init_resort();
 //	display_default_plot();

@@ -4,12 +4,13 @@ typedef struct {
 	int weight;
 	Waypoint top;
 	Waypoint bot;
-	struct Trail* (*set_weight) (struct Trail*);
+	int (*set_weight)();
 } Trail;
 
-struct Trail* Trail_set_weight(struct* me)
+int *set_weight(Trail * self)
 {
-	printf("id:%d",me->id);
+	printf("id:%d",self->id);
+	return(&self->id);
 }
 
 
