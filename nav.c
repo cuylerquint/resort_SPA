@@ -18,7 +18,8 @@ void init_Trail(Trail * this, int id ,int diff, Waypoint * top, Waypoint * bot){
 	this->diff = diff;
 	this->top = *top;
 	this->bot = *bot;
-//	this->weight = this->set_weight();
+	this->set_weight = &set_weight;
+	this->weight = this->set_weight(this);
 }
 void init_Chair(Chair * this, int id ,int weight, Waypoint * top, Waypoint * bot){
 	this->id = id;
@@ -54,9 +55,6 @@ void make_default_waypoints(Waypoint * waypoints){
 
 void make_default_trails(Trail * trails, Waypoint * waypoints){
 	init_Trail(&trails[0],1,1,&waypoints[0],&waypoints[4]);
-	trails[0].set_weight(&trails[0]);	
-//  NEED TO FIRGURE OUT WHY THIS FAULTS ^^^
-
 }
 
 

@@ -7,10 +7,10 @@ typedef struct {
 	int (*set_weight)();
 } Trail;
 
-int *set_weight(Trail * self)
+int set_weight(Trail * self)
 {
-	printf("id:%d",self->id);
-	return(&self->id);
+	printf("\nset_weight return:%d\n",self->top.y);
+	return(1);
 }
 
 
