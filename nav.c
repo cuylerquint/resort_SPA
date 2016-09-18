@@ -3,9 +3,25 @@
 #include "waypoint.h"
 #include "trail.h"
 #include "chair.h"
+#include "resort.h"
+#include "route_request.h"
+#include "Astar.h"
+
+void init_Astar(Astar * this, Resort * resort , Route * route)
+{
+	this->resort = *resort;
+	this->route = *route;
+}
+
+void init_Route(Route * this, Waypoint * waypoints, int  input_data)
+{
+	
 
 
-void init_Waypoint(Waypoint * me,int id, int x, int y, int z, int weight){
+}
+
+void init_Waypoint(Waypoint * me,int id, int x, int y, int z, int weight)
+{
 	me->id = id;
 	me->x = x;
 	me->y = y;
@@ -13,7 +29,8 @@ void init_Waypoint(Waypoint * me,int id, int x, int y, int z, int weight){
 	me->weight = weight;
 }
 
-void init_Trail(Trail * this, int id ,int diff, Waypoint * top, Waypoint * bot){
+void init_Trail(Trail * this, int id ,int diff, Waypoint * top, Waypoint * bot)
+{
 	this->id = id;
 	this->diff = diff;
 	this->top = *top;
@@ -21,14 +38,24 @@ void init_Trail(Trail * this, int id ,int diff, Waypoint * top, Waypoint * bot){
 	this->set_weight = &set_weight;
 	this->weight = this->set_weight(this);
 }
-void init_Chair(Chair * this, int id ,int weight, Waypoint * top, Waypoint * bot){
+
+void init_Chair(Chair * this, int id ,int weight, Waypoint * top, Waypoint * bot)
+{
 	this->id = id;
 	this->top = *top;
 	this->bot = *bot;
 	this->weight = weight;
 }
 
-void make_default_waypoints(Waypoint * waypoints){
+void init_Resort(Resort * this, Waypoint * waypoints, Chair * chairs, Trail * trails)
+{
+	this->waypoints = waypoints;
+	this->chairs = chairs;
+	this->trails = trails;
+}
+
+void make_default_waypoints(Waypoint * waypoints)
+{
 	init_Waypoint(&waypoints[0],1,0,500,0,0);
 	init_Waypoint(&waypoints[1],2,0,400,100,0);
 	init_Waypoint(&waypoints[2],3,100,400,100,0);
@@ -48,17 +75,17 @@ void make_default_waypoints(Waypoint * waypoints){
 	init_Waypoint(&waypoints[16],17,500,0,250,0);
 	init_Waypoint(&waypoints[17],18,500,0,0,0);
 	init_Waypoint(&waypoints[18],19,175,100,250,0);
-	init_Waypoint(&waypoints[19],20,250,500,175,0);
-	
-	
+	init_Waypoint(&waypoints[19],20,250,500,175,0);	
 }
 
-void make_default_trails(Trail * trails, Waypoint * waypoints){
+void make_default_trails(Trail * trails, Waypoint * waypoints)
+{
 	init_Trail(&trails[0],1,1,&waypoints[0],&waypoints[4]);
 }
 
 
-void make_default_chairs(Chair * chairs, Waypoint * waypoints){
+void make_default_chairs(Chair * chairs, Waypoint * waypoints)
+{
 	init_Chair(&chairs[0],1,7,&waypoints[4],&waypoints[14]);
 	init_Chair(&chairs[1],2,3,&waypoints[1],&waypoints[11]);
 	init_Chair(&chairs[2],3,9,&waypoints[2],&waypoints[13]);
@@ -70,7 +97,8 @@ void make_default_chairs(Chair * chairs, Waypoint * waypoints){
 	init_Chair(&chairs[8],9,7,&waypoints[6],&waypoints[16]);
 }
 
-void get_input_data(int * input_data){
+void get_input_data(int * input_data)
+{
 	int starting_location = 0, desired_location = 0,preference = 0;
 	printf("Starting Locataion Point:");
 	scanf("%d",&starting_location);
@@ -83,33 +111,33 @@ void get_input_data(int * input_data){
 	input_data[2] = preference;
 	
 }
-void setup_route(Waypoint * waypoints,int input_data[]){
-	int bound = sizeof(waypoints[0]);
-	printf("bound:%d",bound);
-	for(int i = 0; waypoints[i].id; i++){
-		printf("\n%d",waypoints[i].id);
-	}
-}
-int setup(){
+
+
+
+int setup()
+{
 	Waypoint waypoints[20];
 	Trail **trails = malloc(29 * sizeof(Trail*));
+	Resort *resort = malloc(sizeof(Resort*));
 	for(int i = 0 ; i < 29;i++)
-	{
-	trails[i] =  malloc(sizeof(Trail));
-	}
+		trails[i] =  malloc(sizeof(Trail));
 	Chair chairs[10];
+	Route *route = malloc(sizeof(Route));
+	Astar *astar = malloc(sizeof(Astar));
 	make_default_waypoints(waypoints);
 	make_default_trails(*trails,waypoints);
 	make_default_chairs(chairs,waypoints);
-//	init_resort();
+//	init_Resort(resort,waypoints, trails, chairs);
 //	display_default_plot();
 	int input_data[3];
 	get_input_data(input_data);
-	setup_route(waypoints,input_data);
+	init_Route(route,waypoints,input_data);
+	init_Astar(astar,resort,route);
 	return(1);	
 }
 
-int main(void){
+int main(void)
+{
 	setup();
 	return(1);
 }

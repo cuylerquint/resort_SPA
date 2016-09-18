@@ -29,9 +29,15 @@ int set_weight(Trail * self)
 	printf("\n s z: %d ", delta_z); 
 	weight = abs(delta_x) + abs(delta_y) + abs(delta_z);
 	weight = sqrt(weight);
-	
+	if(self->diff == 1)
+		weight = weight + (weight * .3);
+	else if (self->diff == 2)
+		weight = weight + (weight * .2);
+	else
+		weight = weight + (weight * .1);
 	printf("\nset_weight return:%f\n",weight);
-	return(1);
+	return(weight);
+	
 }
 
 

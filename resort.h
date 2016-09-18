@@ -1,10 +1,10 @@
 typedef struct {
-	Waypoint waypoints[WAYPOINTS_SIZE];
-	Chair chairs[CHAIRS_SIZE];
-	Trail trails[TRAILS_SIZE];
+	Waypoint * waypoints;
+	Chair * chairs;
+	Trail * trails;
 }Resort;
 
 
 
 
-void init_resort(Waypoint * waypoints, Chair * chairs, Trail * trails);
+void init_Resort(Resort * me, Waypoint * waypoints, Chair * chairs, Trail * trails);

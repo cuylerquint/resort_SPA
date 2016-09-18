@@ -2,9 +2,9 @@ typedef struct{
 	Waypoint start;
 	Waypoint finish;
 	int preference;
-}Route;
+} Route;
 
 
-void init_Route(Waypoint * start, Waypoint * end, int preference);
+void init_Route(Route * me, Waypoint * waypoints, int input_data);
 
 
