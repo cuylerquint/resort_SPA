@@ -86,8 +86,40 @@ void make_default_waypoints(Waypoint * waypoints)
 
 void make_default_trails(Trail * trails, Waypoint * waypoints)
 {
-	//green 
-	init_Trail(&trails[0],1,1,waypoints[0].id,waypoints[4].id,waypoints);
+	//green list,id,diff,top_id,bot_id
+	init_Trail(&trails[0],1,1,1,5,waypoints);
+	init_Trail(&trails[1],2,1,5,8,waypoints);
+	init_Trail(&trails[2],3,1,8,11,waypoints);
+	init_Trail(&trails[3],4,1,11,14,waypoints);
+	init_Trail(&trails[4],5,1,8,12,waypoints);
+	init_Trail(&trails[5],6,1,11,15,waypoints);
+	init_Trail(&trails[6],7,1,7,20,waypoints);
+	init_Trail(&trails[7],8,1,20,16,waypoints);
+	init_Trail(&trails[8],9,1,20,17,waypoints);
+
+	//blue list,id,diff,top_id,bot_id
+	init_Trail(&trails[9],10,2,1,3,waypoints);
+	init_Trail(&trails[10],11,2,3,8,waypoints);
+	init_Trail(&trails[11],12,2,3,6,waypoints);
+	init_Trail(&trails[12],13,2,3,10,waypoints);
+	init_Trail(&trails[13],14,2,19,14,waypoints);
+	init_Trail(&trails[14],15,2,6,19,waypoints);
+	init_Trail(&trails[15],16,2,6,9,waypoints);
+	init_Trail(&trails[16],17,2,6,20,waypoints);
+	init_Trail(&trails[17],18,2,20,18,waypoints);
+	init_Trail(&trails[18],19,2,9,12,waypoints);
+	init_Trail(&trails[19],20,2,12,16,waypoints);
+
+	//black
+	init_Trail(&trails[20],21,3,1,7,waypoints);
+	init_Trail(&trails[21],22,3,7,10,waypoints);
+	init_Trail(&trails[22],23,3,10,13,waypoints);
+	init_Trail(&trails[23],24,3,13,18,waypoints);
+	init_Trail(&trails[24],25,3,10,12,waypoints);
+	init_Trail(&trails[25],26,3,13,17,waypoints);
+	init_Trail(&trails[26],27,3,5,19,waypoints);
+	init_Trail(&trails[27],28,3,19,16,waypoints);
+	init_Trail(&trails[28],29,3,19,15,waypoints);
 }
 
 
