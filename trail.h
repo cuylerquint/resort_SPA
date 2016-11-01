@@ -41,4 +41,4 @@ int set_weight(Trail * self)
 }
 
 
-void init_Trail(Trail * me, int id, int diff, Waypoint * top, Waypoint * bot);
+void init_Trail(Trail * this, int id ,int diff, int top_waypoint_id, int bot_waypoint_id, Waypoint * waypoints);

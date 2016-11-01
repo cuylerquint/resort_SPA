@@ -13,7 +13,7 @@ void init_Astar(Astar * this, Resort * resort , Route * route)
 	this->route = *route;
 }
 
-void init_Route(Route * this, Waypoint * waypoints, int  input_data)
+void init_Route(Route * this, Waypoint * waypoints, int input_data)
 {
 	
 
@@ -29,12 +29,18 @@ void init_Waypoint(Waypoint * me,int id, int x, int y, int z, int weight)
 	me->weight = weight;
 }
 
-void init_Trail(Trail * this, int id ,int diff, Waypoint * top, Waypoint * bot)
+void init_Trail(Trail * this, int id ,int diff, int top_waypoint_id, int bot_waypoint_id, Waypoint * waypoints)
 {
+
 	this->id = id;
 	this->diff = diff;
-	this->top = *top;
-	this->bot = *bot;
+	for(int i = 0; i < 20;i++)
+	{
+		if(waypoints[i].id == top_waypoint_id)
+			this->top = waypoints[i];
+		if(waypoints[i].id == bot_waypoint_id)
+			this->bot = waypoints[i];
+	}
 	this->set_weight = &set_weight;
 	this->weight = this->set_weight(this);
 }
@@ -80,7 +86,8 @@ void make_default_waypoints(Waypoint * waypoints)
 
 void make_default_trails(Trail * trails, Waypoint * waypoints)
 {
-	init_Trail(&trails[0],1,1,&waypoints[0],&waypoints[4]);
+	//green 
+	init_Trail(&trails[0],1,1,waypoints[0].id,waypoints[4].id,waypoints);
 }
 
 
