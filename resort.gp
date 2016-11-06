@@ -10,6 +10,7 @@ set style line 2 lt 1 lw 1 linecolor rgb "blue"  # med
 set style line 3 lt 1 lw 1 pt 7 ps .5 linecolor rgb "black" # expert
 set style line 4 lt 1 lw 1 linecolor rgb "red"   # chair
 set style line 5 lt 1 lw 1 linecolor rgb "gray"  # env
+set style line 6 lt 1 lw 1 linecolor rgb "yellow" # route
 
 
 set title 'Resort'
@@ -22,4 +23,5 @@ splot 'resort.dat' using 1:2:3 with points ls 3, \
 "easy.dat" with lines ls 1, \
 "med.dat" with lines ls 2, \
 "expert.dat" with lines ls 3, \
+"suggested.dat" with lines ls 6, \
 "env.dat" with lines ls 5

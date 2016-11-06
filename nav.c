@@ -7,17 +7,28 @@
 #include "route_request.h"
 #include "Astar.h"
 
+
+void write_to_suggested_dat(FILE * fo, Trail * trail);
+
+
+
 void init_Astar(Astar * this, Resort * resort , Route * route)
 {
 	this->resort = *resort;
 	this->route = *route;
 }
 
-void init_Route(Route * this, Waypoint * waypoints, int input_data)
+void init_Route(Route * this, Waypoint * waypoints, int input_data[])
 {
 	
-
-
+	for(int i = 0; i < 20;i++)
+	{
+		if(waypoints[i].id == input_data[0])
+			this->start = waypoints[i];
+		if(waypoints[i].id == input_data[1])
+			this->finish = waypoints[i];
+	}
+	this->preference = input_data[2];
 }
 
 void init_Waypoint(Waypoint * me,int id, int x, int y, int z, int weight)
@@ -120,6 +131,8 @@ void make_default_trails(Trail * trails, Waypoint * waypoints)
 	init_Trail(&trails[26],27,3,5,19,waypoints);
 	init_Trail(&trails[27],28,3,19,16,waypoints);
 	init_Trail(&trails[28],29,3,19,15,waypoints);
+	
+	printf("test:%d",trails[0].id);
 }
 
 
@@ -151,7 +164,34 @@ void get_input_data(int * input_data)
 	
 }
 
+void display_suggestion(int suggested_route[], Resort * resort)
+{
+	//from a list of trail ids, write those trail cooridnates for gnuplot to plot yellow lines for a placement
+	// get trail from resort 
+	// first index is giving address for resort->trails odd reason?! firgure out 
+	FILE *fo;	
+	fo = fopen("suggested.dat", "w+");	
+	for(int i = 0; i < 29; i++){
+		for(int j = 0;j < 29;j++){
+			if(suggested_route[i] == resort->trails[j].id)
+			{
+				write_to_suggested_dat(fo,&resort->trails[j]);
+				printf("\nR trail id: %d, suggested: %d",resort->trails[j].id, suggested_route[i]);
+			}
+		}
+	}
+}
 
+
+void write_to_suggested_dat(FILE *fo,Trail * trail)
+{
+	
+	fprintf(fo, "%d\t%d\t%d",trail->top.x,trail->top.y,trail->top.z);
+	fprintf(fo, "\n%d\t%d\t%d\n\n",trail->bot.x,trail->bot.y,trail->bot.z);
+	printf("\ntopWid: %d topx : %d topy: %d topz: %d",trail->top.id,trail->top.x,trail->top.y,trail->top.z);
+	printf("\nbotWid: %d botx : %d boty: %d botz: %d",trail->bot.id,trail->bot.x,trail->bot.y,trail->bot.z);
+
+}
 
 int setup()
 {
@@ -166,12 +206,16 @@ int setup()
 	make_default_waypoints(waypoints);
 	make_default_trails(*trails,waypoints);
 	make_default_chairs(chairs,waypoints);
-//	init_Resort(resort,waypoints, trails, chairs);
+	init_Resort(resort,waypoints,chairs,*trails);
 //	display_default_plot();
 	int input_data[3];
 	get_input_data(input_data);
 	init_Route(route,waypoints,input_data);
 	init_Astar(astar,resort,route);
+	int route_suggestion[29];
+	route_suggestion[0] = 3;
+	route_suggestion[1] = 2;
+	display_suggestion(route_suggestion, resort);
 	return(1);	
 }
 

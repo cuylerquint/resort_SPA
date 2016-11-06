@@ -5,6 +5,6 @@ typedef struct{
 } Route;
 
 
-void init_Route(Route * me, Waypoint * waypoints, int input_data);
+void init_Route(Route * me, Waypoint * waypoints, int input_data[]);
 
 
