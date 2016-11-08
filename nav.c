@@ -180,6 +180,11 @@ void display_suggestion(int suggested_route[], Resort * resort)
 			}
 		}
 	}
+
+	fclose(fo);
+	system("killall gnuplot_qt");
+	system("gnuplot routed_resort.gp -p");
+
 }
 
 
@@ -192,6 +197,9 @@ void write_to_suggested_dat(FILE *fo,Trail * trail)
 	printf("\nbotWid: %d botx : %d boty: %d botz: %d",trail->bot.id,trail->bot.x,trail->bot.y,trail->bot.z);
 
 }
+
+
+
 
 int setup()
 {
@@ -208,6 +216,7 @@ int setup()
 	make_default_chairs(chairs,waypoints);
 	init_Resort(resort,waypoints,chairs,*trails);
 //	display_default_plot();
+	system("gnuplot resort.gp -p");
 	int input_data[3];
 	get_input_data(input_data);
 	init_Route(route,waypoints,input_data);
@@ -216,6 +225,7 @@ int setup()
 	route_suggestion[0] = 3;
 	route_suggestion[1] = 2;
 	display_suggestion(route_suggestion, resort);
+
 	return(1);	
 }
 
