@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include <stdlib.h>
 #include "waypoint.h"
 #include "trail.h"
@@ -8,7 +9,7 @@
 #include "Astar.h"
 
 
-void write_to_suggested_dat(FILE * fo, Trail * trail);
+void write_to_suggested_dat(FILE * fo, Trail * trail, int i);
 
 
 
@@ -132,7 +133,7 @@ void make_default_trails(Trail * trails, Waypoint * waypoints)
 	init_Trail(&trails[27],28,3,19,16,waypoints);
 	init_Trail(&trails[28],29,3,19,15,waypoints);
 	
-	printf("test:%d",trails[0].id);
+	//printf("test:%d",trails[0].id);
 }
 
 
@@ -175,8 +176,8 @@ void display_suggestion(int suggested_route[], Resort * resort)
 		for(int j = 0;j < 29;j++){
 			if(suggested_route[i] == resort->trails[j].id)
 			{
-				write_to_suggested_dat(fo,&resort->trails[j]);
-				printf("\nR trail id: %d, suggested: %d",resort->trails[j].id, suggested_route[i]);
+				write_to_suggested_dat(fo,&resort->trails[j],i);
+//				printf("\nR trail id: %d, suggested: %d",resort->trails[j].id, suggested_route[i]);
 			}
 		}
 	}
@@ -188,13 +189,12 @@ void display_suggestion(int suggested_route[], Resort * resort)
 }
 
 
-void write_to_suggested_dat(FILE *fo,Trail * trail)
+void write_to_suggested_dat(FILE *fo,Trail * trail, int i)
 {
-	
-	fprintf(fo, "%d\t%d\t%d",trail->top.x,trail->top.y,trail->top.z);
+	fprintf(fo, "%d\t%d\t%d\t%d",trail->top.x,trail->top.y,trail->top.z,i+1);
 	fprintf(fo, "\n%d\t%d\t%d\n\n",trail->bot.x,trail->bot.y,trail->bot.z);
-	printf("\ntopWid: %d topx : %d topy: %d topz: %d",trail->top.id,trail->top.x,trail->top.y,trail->top.z);
-	printf("\nbotWid: %d botx : %d boty: %d botz: %d",trail->bot.id,trail->bot.x,trail->bot.y,trail->bot.z);
+//	printf("\ntopWid: %d topx : %d topy: %d topz: %d",trail->top.id,trail->top.x,trail->top.y,trail->top.z);
+//	printf("\nbotWid: %d botx : %d boty: %d botz: %d",trail->bot.id,trail->bot.x,trail->bot.y,trail->bot.z);
 
 }
 
@@ -215,15 +215,15 @@ int setup()
 	make_default_trails(*trails,waypoints);
 	make_default_chairs(chairs,waypoints);
 	init_Resort(resort,waypoints,chairs,*trails);
-//	display_default_plot();
 	system("gnuplot resort.gp -p");
 	int input_data[3];
 	get_input_data(input_data);
 	init_Route(route,waypoints,input_data);
 	init_Astar(astar,resort,route);
 	int route_suggestion[29];
-	route_suggestion[0] = 3;
-	route_suggestion[1] = 2;
+	route_suggestion[0] = 2;
+	route_suggestion[1] = 3;
+	route_suggestion[2] = 4;
 	display_suggestion(route_suggestion, resort);
 
 	return(1);	

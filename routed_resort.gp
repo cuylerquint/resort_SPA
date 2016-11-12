@@ -17,11 +17,11 @@ set title 'Suggested Route'
 set label "1" at 0,500,0
 
 
-
-splot 'resort.dat' using 1:2:3:(sprintf("%d",$4)) with labels point  pt 7 offset char 1,1 notitle, \
+splot 'resort.dat' using 1:2:3 with points ls 3,\
 "easy.dat" with lines ls 1, \
 "med.dat" with lines ls 2, \
 "chairs.dat" with lines ls 4, \
 "expert.dat" with lines ls 3, \
+'suggested.dat' using 1:2:3:(sprintf("%d",$4)) with labels point  pt 7 offset char 1,1 notitle, \
 "suggested.dat" with lines ls 6, \
 "env.dat" with lines ls 5
