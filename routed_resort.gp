@@ -22,6 +22,6 @@ splot 'resort.dat' using 1:2:3 with points ls 3,\
 "med.dat" with lines ls 2, \
 "chairs.dat" with lines ls 4, \
 "expert.dat" with lines ls 3, \
-'suggested.dat' using 1:2:3:(sprintf("%d",$4)) with labels point  pt 7 offset char 1,1 notitle, \
-"suggested.dat" with lines ls 6, \
+"suggested_trails.dat" with lines ls 6, \
+'suggested_waypoints.dat' using 1:2:3:(sprintf("%d",$4)) with labels point  pt 7 offset char 1,1 notitle, \
 "env.dat" with lines ls 5

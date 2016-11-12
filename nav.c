@@ -9,7 +9,7 @@
 #include "Astar.h"
 
 
-void write_to_suggested_dat(FILE * fo, Trail * trail, int i);
+void write_to_suggested_dat(FILE * st,FILE * sw, Trail * trail, int i);
 
 
 
@@ -17,6 +17,7 @@ void init_Astar(Astar * this, Resort * resort , Route * route)
 {
 	this->resort = *resort;
 	this->route = *route;
+	this->find_path = &find_path;
 }
 
 void init_Route(Route * this, Waypoint * waypoints, int input_data[])
@@ -166,33 +167,39 @@ void get_input_data(int * input_data)
 }
 
 void display_suggestion(int suggested_route[], Resort * resort)
+//need to firgure out how to combine with displaying chairs as well
 {
 	//from a list of trail ids, write those trail cooridnates for gnuplot to plot yellow lines for a placement
 	// get trail from resort 
 	// first index is giving address for resort->trails odd reason?! firgure out 
-	FILE *fo;	
-	fo = fopen("suggested.dat", "w+");	
+	FILE *st,*sw;	
+	st = fopen("suggested_trails.dat", "w+");	
+	sw = fopen("suggested_waypoints.dat", "w+");	
+	int stop_count = 1;
 	for(int i = 0; i < 29; i++){
 		for(int j = 0;j < 29;j++){
 			if(suggested_route[i] == resort->trails[j].id)
 			{
-				write_to_suggested_dat(fo,&resort->trails[j],i);
+				write_to_suggested_dat(st,sw,&resort->trails[j],stop_count);
+				stop_count++;
 //				printf("\nR trail id: %d, suggested: %d",resort->trails[j].id, suggested_route[i]);
 			}
 		}
 	}
 
-	fclose(fo);
+	fclose(st);
+	fclose(sw);
 	system("killall gnuplot_qt");
 	system("gnuplot routed_resort.gp -p");
 
 }
 
 
-void write_to_suggested_dat(FILE *fo,Trail * trail, int i)
+void write_to_suggested_dat(FILE *st,FILE *sw,Trail * trail, int stop_count)
 {
-	fprintf(fo, "%d\t%d\t%d\t%d",trail->top.x,trail->top.y,trail->top.z,i+1);
-	fprintf(fo, "\n%d\t%d\t%d\n\n",trail->bot.x,trail->bot.y,trail->bot.z);
+	fprintf(sw, "%d\t%d\t%d\t%d\n\n",trail->top.x,trail->top.y,trail->top.z,stop_count);
+	fprintf(st, "%d\t%d\t%d",trail->top.x,trail->top.y,trail->top.z);
+	fprintf(st, "\n%d\t%d\t%d\n\n",trail->bot.x,trail->bot.y,trail->bot.z);
 //	printf("\ntopWid: %d topx : %d topy: %d topz: %d",trail->top.id,trail->top.x,trail->top.y,trail->top.z);
 //	printf("\nbotWid: %d botx : %d boty: %d botz: %d",trail->bot.id,trail->bot.x,trail->bot.y,trail->bot.z);
 
@@ -201,38 +208,48 @@ void write_to_suggested_dat(FILE *fo,Trail * trail, int i)
 
 
 
-int setup()
+int setup_resort(Resort * resort)
 {
 	Waypoint waypoints[20];
 	Trail **trails = malloc(29 * sizeof(Trail*));
-	Resort *resort = malloc(sizeof(Resort*));
 	for(int i = 0 ; i < 29;i++)
 		trails[i] =  malloc(sizeof(Trail));
 	Chair chairs[10];
-	Route *route = malloc(sizeof(Route));
-	Astar *astar = malloc(sizeof(Astar));
 	make_default_waypoints(waypoints);
 	make_default_trails(*trails,waypoints);
 	make_default_chairs(chairs,waypoints);
 	init_Resort(resort,waypoints,chairs,*trails);
+	return(1);	
+
+}
+
+int setup_route(Route * route,Resort * resort)
+{
 	system("gnuplot resort.gp -p");
 	int input_data[3];
 	get_input_data(input_data);
-	init_Route(route,waypoints,input_data);
-	init_Astar(astar,resort,route);
-	int route_suggestion[29];
-	route_suggestion[0] = 2;
-	route_suggestion[1] = 3;
-	route_suggestion[2] = 4;
-	display_suggestion(route_suggestion, resort);
-
+	init_Route(route,resort->waypoints,input_data);
 	return(1);	
 }
 
 int main(void)
 {
-	setup();
-	return(1);
+	
+	Resort * resort = malloc(sizeof(Resort*));
+	setup_resort(resort);	
+	Route * route = malloc(sizeof(Route));
+	setup_route(route,resort);
+	Astar * astar = malloc(sizeof(Astar));	
+	init_Astar(astar,resort,route);
+	int *route_suggestion;
+	route_suggestion = astar->find_path();	
+	display_suggestion(route_suggestion, resort);
+
+
+
+
+
+	return(1);	
 }
 
 
