@@ -1,20 +1,16 @@
+#include <math.h>
 typedef struct {
 	Resort resort;
 	Route route;
-	int * (*find_path)();	
 } Astar;
 
+// used linked list for open and closed_list
+
+typedef struct {
+	Waypoint waypoint;
+	int g,h,f;
+} astar_node;
 
 
-int * find_path(Astar * self)
-{
-	
-	int *route_suggestion = malloc(29 * sizeof(*route_suggestion));
-	route_suggestion[0] = 2;
-	route_suggestion[1] = 3;
-	route_suggestion[2] = 4;
-
-	return route_suggestion;
-}
 
 void init_Astar(Astar * me, Resort * resort, Route * route); 	

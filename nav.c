@@ -7,9 +7,10 @@
 #include "resort.h"
 #include "route_request.h"
 #include "Astar.h"
-
+#include "linked_list.h"
 
 void write_to_suggested_dat(FILE * st,FILE * sw, Trail * trail, int i);
+int listLength(linked_node* item);
 
 
 
@@ -17,7 +18,6 @@ void init_Astar(Astar * this, Resort * resort , Route * route)
 {
 	this->resort = *resort;
 	this->route = *route;
-	this->find_path = &find_path;
 }
 
 void init_Route(Route * this, Waypoint * waypoints, int input_data[])
@@ -134,7 +134,7 @@ void make_default_trails(Trail * trails, Waypoint * waypoints)
 	init_Trail(&trails[27],28,3,19,16,waypoints);
 	init_Trail(&trails[28],29,3,19,15,waypoints);
 	
-	//printf("test:%d",trails[0].id);
+	printf("test:%d",trails[0].id);
 }
 
 
@@ -205,50 +205,109 @@ void write_to_suggested_dat(FILE *st,FILE *sw,Trail * trail, int stop_count)
 
 }
 
+int list_len(linked_node* item)
+{
+  linked_node* cur = item;
+  int size = 0;
+
+  while (cur != NULL)
+  {
+    ++size;
+    cur = cur->next;
+  }
+
+  return size;
+}
 
 
+astar_node * get_lowest_f(linked_node * node)
+{
+	linked_node * smallest = node;  
+	while( node != NULL) {
+  		if( node->data.f < smallest->data.f ) {
+       			smallest = node;
+  		}
+  		node = node->next;
+	}
+	return &smallest->data;
+}
 
-int setup_resort(Resort * resort)
+int heuristic_cost( Waypoint * cur, Waypoint * goal)
+{
+
+ 	printf("\nTopx: %d  Topy: %d Topz: %d", cur->x, cur->y, cur->z);
+ 	printf("\nBotx: %d  Boty: %d Botz: %d", goal->x, goal->y, goal->z);
+ 
+ 	int delta_x,delta_y, delta_z;
+ 	double  weight;
+ 	delta_x = (cur->x - goal->x);
+ 	printf("\nfirst x: %d ", delta_x); 
+ 	delta_y = (cur->y - goal->y);
+ 	printf("\nfirst y: %d ", delta_y); 
+ 	delta_z = (cur->z - goal->z);
+ 	printf("\nfirst z: %d ", delta_z); 
+ 	delta_x = abs(delta_x)*abs(delta_x);delta_y = abs(delta_y)*abs(delta_y);delta_z = abs(delta_z)*abs(delta_z);
+ 	printf("\n s x: %d ", delta_x); 
+ 	printf("\n s y: %d ", delta_y); 
+ 	printf("\n s z: %d ", delta_z); 
+ 	weight = abs(delta_x) + abs(delta_y) + abs(delta_z);
+ 	weight = sqrt(weight);
+ 	printf("\nset_weight return:%f\n",weight);
+	return(weight);
+	
+
+}
+
+
+int * find_path(Astar * self)
+{
+			
+	linked_node * open_head = malloc(sizeof(linked_node));
+	linked_node * closed_head = malloc(sizeof(linked_node));
+	astar_node * start = malloc(sizeof(astar_node));
+	start->waypoint = self->route.start;	
+	start->f = heuristic_cost(&start->waypoint,&self->route.finish);	
+	printf("start f : %d",start->f);	
+	astar_node * temp = get_lowest_f(open_head);	
+		
+	//while(list_len(open_head) != 0)
+//	{
+//		astar_node * temp = get_lowest_f(open_head);	
+			
+//	}
+	
+
+
+	int *route_suggestion = malloc(29 * sizeof(*route_suggestion));
+	route_suggestion[0] = 2;
+	route_suggestion[1] = 3;
+	route_suggestion[2] = 4;
+	return route_suggestion;
+}
+
+
+int main(void)
 {
 	Waypoint waypoints[20];
 	Trail **trails = malloc(29 * sizeof(Trail*));
+	Resort *resort = malloc(sizeof(Resort*));
 	for(int i = 0 ; i < 29;i++)
 		trails[i] =  malloc(sizeof(Trail));
 	Chair chairs[10];
+	Route *route = malloc(sizeof(Route));
+	Astar *astar = malloc(sizeof(Astar));
 	make_default_waypoints(waypoints);
 	make_default_trails(*trails,waypoints);
 	make_default_chairs(chairs,waypoints);
 	init_Resort(resort,waypoints,chairs,*trails);
-	return(1);	
-
-}
-
-int setup_route(Route * route,Resort * resort)
-{
 	system("gnuplot resort.gp -p");
 	int input_data[3];
 	get_input_data(input_data);
-	init_Route(route,resort->waypoints,input_data);
-	return(1);	
-}
-
-int main(void)
-{
-	
-	Resort * resort = malloc(sizeof(Resort*));
-	setup_resort(resort);	
-	Route * route = malloc(sizeof(Route));
-	setup_route(route,resort);
-	Astar * astar = malloc(sizeof(Astar));	
+	init_Route(route,waypoints,input_data);
 	init_Astar(astar,resort,route);
 	int *route_suggestion;
-	route_suggestion = astar->find_path();	
+	route_suggestion = find_path(astar);	
 	display_suggestion(route_suggestion, resort);
-
-
-
-
-
 	return(1);	
 }
 
