@@ -11,6 +11,7 @@
 
 void write_to_suggested_dat(FILE * st,FILE * sw, Trail * trail, int i);
 int listLength(linked_node* item);
+void display_list(linked_node * head);
 
 
 
@@ -134,7 +135,7 @@ void make_default_trails(Trail * trails, Waypoint * waypoints)
 	init_Trail(&trails[27],28,3,19,16,waypoints);
 	init_Trail(&trails[28],29,3,19,15,waypoints);
 	
-	printf("test:%d",trails[0].id);
+//	printf("test:%d",trails[0].id);
 }
 
 
@@ -219,9 +220,53 @@ int list_len(linked_node* item)
   return size;
 }
 
+void list_insert(linked_node ** head, astar_node * data)
+{
+	linked_node * insert = (linked_node *) malloc(sizeof(linked_node));
+	insert->data = *data;
+	if(*head == NULL)
+	{
+		*head = insert;
+		insert->next = NULL;
+	}
+	else if((*head)->data.f > data->f)
+	{
+		insert->next = *head;
+		*head = insert;
+	}	
+	else
+	{
+		printf("Inserting %d into : ",data->f);
+		display_list(*head);
+		linked_node * temp, *prev;
+		temp = *head;
+		while(temp != NULL && temp->data.f <= data->f)
+		{	
+			prev = temp;
+			temp = temp->next;
+		}
+		insert->next = temp;
+		prev->next = insert;	
+	}
+}
+
+void display_list(linked_node * head)
+{
+	linked_node * temp = head;
+	printf("\nUpdated List: ");
+	while(temp != NULL)
+	{
+		printf("%d->",temp->data.f);
+		temp = temp->next;
+	}
+	printf("NULL\n\n");
+}
+
 
 astar_node * get_lowest_f(linked_node * node)
 {
+	
+	display_list(node);
 	linked_node * smallest = node;  
 	while( node != NULL) {
   		if( node->data.f < smallest->data.f ) {
@@ -235,45 +280,37 @@ astar_node * get_lowest_f(linked_node * node)
 int heuristic_cost( Waypoint * cur, Waypoint * goal)
 {
 
- 	printf("\nTopx: %d  Topy: %d Topz: %d", cur->x, cur->y, cur->z);
- 	printf("\nBotx: %d  Boty: %d Botz: %d", goal->x, goal->y, goal->z);
+ //	printf("\nTopx: %d  Topy: %d Topz: %d", cur->x, cur->y, cur->z);
+ //	printf("\nBotx: %d  Boty: %d Botz: %d", goal->x, goal->y, goal->z);
  
  	int delta_x,delta_y, delta_z;
  	double  weight;
  	delta_x = (cur->x - goal->x);
- 	printf("\nfirst x: %d ", delta_x); 
  	delta_y = (cur->y - goal->y);
- 	printf("\nfirst y: %d ", delta_y); 
  	delta_z = (cur->z - goal->z);
- 	printf("\nfirst z: %d ", delta_z); 
  	delta_x = abs(delta_x)*abs(delta_x);delta_y = abs(delta_y)*abs(delta_y);delta_z = abs(delta_z)*abs(delta_z);
- 	printf("\n s x: %d ", delta_x); 
- 	printf("\n s y: %d ", delta_y); 
- 	printf("\n s z: %d ", delta_z); 
  	weight = abs(delta_x) + abs(delta_y) + abs(delta_z);
  	weight = sqrt(weight);
- 	printf("\nset_weight return:%f\n",weight);
 	return(weight);
 	
 
 }
 
-
 int * find_path(Astar * self)
 {
 			
-	linked_node * open_head = malloc(sizeof(linked_node));
-	linked_node * closed_head = malloc(sizeof(linked_node));
+	linked_node * open = NULL;
+	linked_node * closed_head = NULL;
 	astar_node * start = malloc(sizeof(astar_node));
 	start->waypoint = self->route.start;	
 	start->f = heuristic_cost(&start->waypoint,&self->route.finish);	
-	printf("start f : %d",start->f);	
-	astar_node * temp = get_lowest_f(open_head);	
-		
-	//while(list_len(open_head) != 0)
+	list_insert(&open,start);	
+	display_list(open);
+	astar_node * temp = get_lowest_f(open);	
+//	while(list_len(open) != 0)
 //	{
-//		astar_node * temp = get_lowest_f(open_head);	
-			
+//		astar_node * temp = get_lowest_f(open);	
+//			
 //	}
 	
 

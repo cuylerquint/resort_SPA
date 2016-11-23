@@ -5,4 +5,3 @@ struct linked_node{
 
 typedef struct linked_node linked_node;
 
-

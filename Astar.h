@@ -1,4 +1,3 @@
-#include <math.h>
 typedef struct {
 	Resort resort;
 	Route route;
