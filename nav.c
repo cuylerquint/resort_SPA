@@ -295,7 +295,11 @@ int heuristic_cost( Waypoint * cur, Waypoint * goal)
 	
 
 }
+int is_goal(astar_node * current, Waypoint finish)
+{
+	return(current->waypoint.x == finish.x && current->waypoint.y == finish.y && current->waypoint.z == finish.z);
 
+}
 int * find_path(Astar * self)
 {
 			
@@ -307,11 +311,15 @@ int * find_path(Astar * self)
 	list_insert(&open,start);	
 	display_list(open);
 	astar_node * temp = get_lowest_f(open);	
-//	while(list_len(open) != 0)
-//	{
-//		astar_node * temp = get_lowest_f(open);	
-//			
-//	}
+	while(list_len(open) != 0)
+	{
+		astar_node * current = get_lowest_f(open);	
+		if(is_goal(current,self->route.finish))
+		{
+			//made path, reconsturt
+			printf("Found Path");
+		}	
+	}
 	
 
 
