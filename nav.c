@@ -250,6 +250,45 @@ void list_insert(linked_node ** head, astar_node * data)
 	}
 }
 
+void sig_sorted_del(linked_node ** head, astar_node * data)
+{
+	printf("Current List: ");
+	display_list(*head);
+	linked_node * del, *prev;
+	printf("Val to delete: %d ", data->f);
+	if(data->f == (*head)->data.f)
+	{
+		if((*head)->next == NULL)
+		{
+		 	printf("\nNice Try Cheater\n ");
+			return;
+		}
+		else
+		{
+			
+			
+			(*head)->data = (*head)->next->data;
+			del = (*head)->next;
+			(*head)->next = (*head)->next->next;
+			free(del);
+			return;
+		}
+	}
+	prev = *head;
+	while(prev->next != NULL || prev->data.f != data->f)
+	{
+		prev = prev->next;
+	}
+	if(prev->next == NULL)
+	{
+		printf("Open your eyes");
+		return;
+	}
+	del = prev;
+	prev->next = prev->next->next;	
+	free(del);	
+}
+
 void display_list(linked_node * head)
 {
 	linked_node * temp = head;
@@ -295,31 +334,71 @@ int heuristic_cost( Waypoint * cur, Waypoint * goal)
 	
 
 }
-int is_goal(astar_node * current, Waypoint finish)
+int equal_waypoints(Waypoint current, Waypoint finish)
 {
-	return(current->waypoint.x == finish.x && current->waypoint.y == finish.y && current->waypoint.z == finish.z);
+	return(current.x == finish.x && current.y == finish.y && current.z == finish.z);
 
 }
+
+void set_temp_neighbors(Astar * self, linked_node * temp_neighbors, astar_node * current)
+{
+	//loop all chairs with bot as current waypoint and add chair i top to temp neighbors
+	//loop all trails with top as current waypoint with a skill prefeecne then trail bot to list
+	for(int i = 0; i < 10;i++)
+	{
+		if(equal_waypoints(self->resort.chairs[i].bot,current->waypoint))
+		{
+			//add a chairs to neighbors
+			astar_node * temp_chair = malloc(sizeof(astar_node));	
+			printf("\ninserting chair : %d",self->resort.chairs[i].id);	
+			list_insert(&temp_neighbors,temp_chair);
+			
+		}	
+	}
+
+	for(int i = 0; i < 29;i++)
+	{
+		if(equal_waypoints(self->resort.trails[i].top,current->waypoint))
+		{
+			//add a trials to neighbors
+			astar_node * temp_trail = malloc(sizeof(astar_node));
+			printf("\ninserting trail top: %d",self->resort.trails[i].id);	
+			list_insert(&temp_neighbors,temp_trail);
+		}	
+	}
+	
+	
+
+}
+
+
+
+
+
 int * find_path(Astar * self)
 {
 			
 	linked_node * open = NULL;
-	linked_node * closed_head = NULL;
+	linked_node * closed = NULL;
+	linked_node * temp_neighbors = NULL;
 	astar_node * start = malloc(sizeof(astar_node));
 	start->waypoint = self->route.start;	
 	start->f = heuristic_cost(&start->waypoint,&self->route.finish);	
 	list_insert(&open,start);	
-	display_list(open);
 	astar_node * temp = get_lowest_f(open);	
-	while(list_len(open) != 0)
-	{
-		astar_node * current = get_lowest_f(open);	
-		if(is_goal(current,self->route.finish))
-		{
-			//made path, reconsturt
-			printf("Found Path");
-		}	
-	}
+	set_temp_neighbors(self,temp_neighbors,temp);
+	display_list(temp_neighbors);
+//	while(list_len(open) != 0)
+//	{
+//		astar_node * current = get_lowest_f(open);	
+//		if(equal_waypoints(current->waypoint,self->route.finish))
+//		{
+//			//made path, reconsturt
+//			printf("Found Path");
+//		}	
+//		del_list(open,current);
+//		list_insert(closed,current);		
+//	}
 	
 
 
