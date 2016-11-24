@@ -14,7 +14,6 @@ int listLength(linked_node* item);
 void display_list(linked_node * head);
 
 
-
 void init_Astar(Astar * this, Resort * resort , Route * route)
 {
 	this->resort = *resort;
@@ -208,16 +207,15 @@ void write_to_suggested_dat(FILE *st,FILE *sw,Trail * trail, int stop_count)
 
 int list_len(linked_node* item)
 {
-  linked_node* cur = item;
-  int size = 0;
+  	linked_node* cur = item;
+  	int size = 0;
 
-  while (cur != NULL)
-  {
-    ++size;
-    cur = cur->next;
-  }
-
-  return size;
+  	while (cur != NULL)
+  	{
+  		++size;
+    		cur = cur->next;
+  	}
+  	return size;
 }
 
 void list_insert(linked_node ** head, astar_node * data)
@@ -344,31 +342,33 @@ void set_temp_neighbors(Astar * self, linked_node * temp_neighbors, astar_node *
 {
 	//loop all chairs with bot as current waypoint and add chair i top to temp neighbors
 	//loop all trails with top as current waypoint with a skill prefeecne then trail bot to list
+	printf("\ncurrent waypoint : %d %d %d",current->waypoint.x,current->waypoint.y,current->waypoint.z);
 	for(int i = 0; i < 10;i++)
 	{
+		printf("\nchair index : %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
 		if(equal_waypoints(self->resort.chairs[i].bot,current->waypoint))
 		{
 			//add a chairs to neighbors
 			astar_node * temp_chair = malloc(sizeof(astar_node));	
 			printf("\ninserting chair : %d",self->resort.chairs[i].id);	
-			list_insert(&temp_neighbors,temp_chair);
-			
+			list_insert(&temp_neighbors,temp_chair);	
 		}	
 	}
 
 	for(int i = 0; i < 29;i++)
 	{
+		printf("\ntrail index : %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
 		if(equal_waypoints(self->resort.trails[i].top,current->waypoint))
 		{
-			//add a trials to neighbors
-			astar_node * temp_trail = malloc(sizeof(astar_node));
-			printf("\ninserting trail top: %d",self->resort.trails[i].id);	
-			list_insert(&temp_neighbors,temp_trail);
+			//add a trials to neighbors with pref
+			if(self->resort.trails[i].diff <= self->route.preference)
+			{
+				astar_node * temp_trail = malloc(sizeof(astar_node));
+				printf("\ninserting trail bot waypoint: %d",self->resort.trails[i].bot.id);	
+				list_insert(&temp_neighbors,temp_trail);
+			}
 		}	
 	}
-	
-	
-
 }
 
 
@@ -387,7 +387,7 @@ int * find_path(Astar * self)
 	list_insert(&open,start);	
 	astar_node * temp = get_lowest_f(open);	
 	set_temp_neighbors(self,temp_neighbors,temp);
-	display_list(temp_neighbors);
+//	display_list(temp_neighbors);
 //	while(list_len(open) != 0)
 //	{
 //		astar_node * current = get_lowest_f(open);	
