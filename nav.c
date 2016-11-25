@@ -286,6 +286,8 @@ int list_remove(linked_node ** head, astar_node * data)
 	del = prev;
 	prev->next = prev->next->next;	
 	free(del);	
+	return 1;
+
 }
 
 void display_list(linked_node * head)
@@ -392,6 +394,15 @@ int in_list(linked_node * head, astar_node * current_neighbor)
 	return 0;
 }
 
+void update_temp_neighbors(linked_node ** head, astar_node * cur,int i, int bound)
+{
+	if(i == bound)//last neighbor
+		*head = NULL;	
+	else
+		list_remove(head,cur);
+
+}
+
 int * find_path(Astar * self)
 {
 			
@@ -415,25 +426,27 @@ int * find_path(Astar * self)
 	if(list_remove(&open,current) == -1)
 		open = NULL; // temp fix for deleteing head	
 	list_insert(&closed,current);		
-	printf("In list %d",in_list(closed,current));
 	set_temp_neighbors(self,&temp_neighbors,current);
 	printf("\ncurrent neihgebors:");
 	display_list(temp_neighbors);
 
 
+	int neighbors_len = list_len(temp_neighbors);
+	for(int i = 1; i <= neighbors_len;i++)
+	{
+		printf("\nI:%d",i);
+		printf("\nNeighor: %d",temp_neighbors->data.waypoint.id);
+		if(in_list(closed,&temp_neighbors->data))
+		{
+			printf("\n in closed contiue");
+			update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
+			continue;
+		}
 
-//	while(temp_neighbors != NULL)
-//	{
-//		if(list_len(temp_neighbors == 1))
-//		{
-//			//last neighbor
-//			printf("last neighbor");
-//		}
-//		if(in_list(&closed,temp_neighbors->next))
-//		{
-//			printf("neihgbor in closed");
-//			continue;
-//		} 
+
+		update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
+
+	}
 
 //	while(list_len(open) != 0)
 //	{
