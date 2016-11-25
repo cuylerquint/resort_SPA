@@ -249,18 +249,18 @@ void list_insert(linked_node ** head, astar_node * data)
 	display_list(*head);
 }
 
-void sig_sorted_del(linked_node ** head, astar_node * data)
+int list_remove(linked_node ** head, astar_node * data)
 {
 	printf("Current List: ");
 	display_list(*head);
 	linked_node * del, *prev;
-	printf("Val to delete: %d ", data->f);
+	printf("Val to delete: %d ", data->waypoint.id);
 	if(data->f == (*head)->data.f)
 	{
 		if((*head)->next == NULL)
 		{
 		 	printf("\nNice Try Cheater\n ");
-			return;
+			return -1;
 		}
 		else
 		{
@@ -270,7 +270,7 @@ void sig_sorted_del(linked_node ** head, astar_node * data)
 			del = (*head)->next;
 			(*head)->next = (*head)->next->next;
 			free(del);
-			return;
+			return 1;
 		}
 	}
 	prev = *head;
@@ -281,7 +281,7 @@ void sig_sorted_del(linked_node ** head, astar_node * data)
 	if(prev->next == NULL)
 	{
 		printf("Open your eyes");
-		return;
+		return 1;
 	}
 	del = prev;
 	prev->next = prev->next->next;	
@@ -377,22 +377,64 @@ void set_temp_neighbors(Astar * self, linked_node ** temp_neighbors, astar_node 
 
 
 
-
+int in_list(linked_node * head, astar_node * current_neighbor)
+{
+	linked_node * temp = head;
+    	while (temp != NULL)
+    	{
+        	if (temp->data.waypoint.id == current_neighbor->waypoint.id)
+        	{
+            		printf("key found\n");
+            		return 1;
+        	}
+        	temp = temp->next;
+    	}
+	return 0;
+}
 
 int * find_path(Astar * self)
 {
 			
-	linked_node * open = NULL;
 	linked_node * closed = NULL;
+	linked_node * open = NULL;
 	linked_node * temp_neighbors = NULL;
 	astar_node * start = malloc(sizeof(astar_node));
+	
 	start->waypoint = self->route.start;	
 	start->f = heuristic_cost(&start->waypoint,&self->route.finish);	
 	list_insert(&open,start);	
-	astar_node * temp = get_lowest_f(open);	
-	set_temp_neighbors(self,&temp_neighbors,temp);
-	printf("\ntemp neihgebors:");
+
+	list_insert(&closed,start);	
+
+	astar_node * current = get_lowest_f(open);	
+	if(equal_waypoints(current->waypoint,self->route.finish))
+	{
+		//made path, reconsturt
+		printf("Found Path");
+	}	
+	if(list_remove(&open,current) == -1)
+		open = NULL; // temp fix for deleteing head	
+	list_insert(&closed,current);		
+	printf("In list %d",in_list(closed,current));
+	set_temp_neighbors(self,&temp_neighbors,current);
+	printf("\ncurrent neihgebors:");
 	display_list(temp_neighbors);
+
+
+
+//	while(temp_neighbors != NULL)
+//	{
+//		if(list_len(temp_neighbors == 1))
+//		{
+//			//last neighbor
+//			printf("last neighbor");
+//		}
+//		if(in_list(&closed,temp_neighbors->next))
+//		{
+//			printf("neihgbor in closed");
+//			continue;
+//		} 
+
 //	while(list_len(open) != 0)
 //	{
 //		astar_node * current = get_lowest_f(open);	
