@@ -53,8 +53,8 @@ void init_Trail(Trail * this, int id ,int diff, int top_waypoint_id, int bot_way
 		if(waypoints[i].id == bot_waypoint_id)
 			this->bot = waypoints[i];
 	}
-	this->set_weight = &set_weight;
-	this->weight = this->set_weight(this);
+	this->set_trail_weight = &set_trail_weight;
+	this->weight = this->set_trail_weight(this);
 }
 
 void init_Chair(Chair * this, int id ,int weight, Waypoint * top, Waypoint * bot)
@@ -62,7 +62,8 @@ void init_Chair(Chair * this, int id ,int weight, Waypoint * top, Waypoint * bot
 	this->id = id;
 	this->top = *top;
 	this->bot = *bot;
-	this->weight = weight;
+	this->set_chair_weight = &set_chair_weight;
+	this->weight = this->set_chair_weight(this);
 }
 
 void init_Resort(Resort * this, Waypoint * waypoints, Chair * chairs, Trail * trails)
@@ -306,8 +307,8 @@ void display_list(linked_node * head)
 astar_node * get_lowest_f(linked_node * node)
 {
 	
-	printf("\nopen:");
-	display_list(node);
+//	printf("\nopen:");
+//	display_list(node);
 	linked_node * smallest = node;  
 	while( node != NULL) {
   		if( node->data.f < smallest->data.f ) {
@@ -318,7 +319,7 @@ astar_node * get_lowest_f(linked_node * node)
 	return &smallest->data;
 }
 
-int heuristic_cost( Waypoint * cur, Waypoint * goal)
+int h_cost( Waypoint * cur, Waypoint * goal)
 {
 
  //	printf("\nTopx: %d  Topy: %d Topz: %d", cur->x, cur->y, cur->z);
@@ -332,10 +333,9 @@ int heuristic_cost( Waypoint * cur, Waypoint * goal)
  	delta_x = abs(delta_x)*abs(delta_x);delta_y = abs(delta_y)*abs(delta_y);delta_z = abs(delta_z)*abs(delta_z);
  	weight = abs(delta_x) + abs(delta_y) + abs(delta_z);
  	weight = sqrt(weight);
-	return(weight);
-	
-
+	return(weight);	
 }
+
 int equal_waypoints(Waypoint current, Waypoint finish)
 {
 	return(current.x == finish.x && current.y == finish.y && current.z == finish.z);
@@ -353,8 +353,11 @@ void set_temp_neighbors(Astar * self, linked_node ** temp_neighbors, astar_node 
 		if(equal_waypoints(self->resort.chairs[i].bot,current->waypoint))
 		{
 			//add a chairs to neighbors
+			printf("\n setting chair path weight to %d",self->resort.chairs[i].weight);
 			astar_node * temp_chair = malloc(sizeof(astar_node));	
 			temp_chair->waypoint = self->resort.chairs[i].top;
+			temp_chair->path_weight = self->resort.chairs[i].weight;
+			temp_chair->g = 999999; // default
 			printf("\ninserting chair top waypoint: %d",self->resort.chairs[i].top.id);	
 			list_insert(temp_neighbors,temp_chair);	
 		}	
@@ -368,8 +371,11 @@ void set_temp_neighbors(Astar * self, linked_node ** temp_neighbors, astar_node 
 			//add a trials to neighbors with pref
 			if(self->resort.trails[i].diff <= self->route.preference)
 			{
+				printf("\n setting trail path weight to %d",self->resort.trails[i].weight);
 				astar_node * temp_trail = malloc(sizeof(astar_node));
 				temp_trail->waypoint = self->resort.trails[i].bot;
+				temp_trail->path_weight = self->resort.trails[i].weight;
+				temp_trail->g = 999999; // default
 				printf("\ninserting trail bot waypoint: %d",self->resort.trails[i].bot.id);	
 				list_insert(temp_neighbors,temp_trail);
 			}
@@ -412,38 +418,45 @@ int * find_path(Astar * self)
 	astar_node * start = malloc(sizeof(astar_node));
 	
 	start->waypoint = self->route.start;	
-	start->f = heuristic_cost(&start->waypoint,&self->route.finish);	
-	list_insert(&open,start);	
+	start->f = h_cost(&start->waypoint,&self->route.finish);	
+	start->g = 123;
+	printf("\n open insert start");
+	list_insert(&open,start);
 
-	list_insert(&closed,start);	
 
+//while open not empty
+	printf("Start While");
 	astar_node * current = get_lowest_f(open);	
 	if(equal_waypoints(current->waypoint,self->route.finish))
 	{
 		//made path, reconsturt
 		printf("Found Path");
 	}	
+	printf("removing curret from open");
 	if(list_remove(&open,current) == -1)
 		open = NULL; // temp fix for deleteing head	
+	display_list(open);
+	printf("\ninserting current into closed");
 	list_insert(&closed,current);		
 	set_temp_neighbors(self,&temp_neighbors,current);
-	printf("\ncurrent neihgebors:");
-	display_list(temp_neighbors);
+	
+//	printf("\ncurrent neihgebors:");
+//	display_list(temp_neighbors);
 
 
 	int neighbors_len = list_len(temp_neighbors);
 	for(int i = 1; i <= neighbors_len;i++)
 	{
 		printf("\nI:%d",i);
-		printf("\nNeighor: %d",temp_neighbors->data.waypoint.id);
+		printf("\nCurrent id: %d, current->g: %d",current->waypoint.id, current->g);
 		if(in_list(closed,&temp_neighbors->data))
 		{
 			printf("\n in closed contiue");
 			update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
 			continue;
 		}
-
-
+		int tentative_G = (current->g + temp_neighbors->data.path_weight);
+		printf("\nNeghib:%d tempG:%d",temp_neighbors->data.waypoint.id,tentative_G);
 		update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
 
 	}
