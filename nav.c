@@ -276,47 +276,15 @@ void list_insert(linked_node ** head, astar_node * data)
 	printf("\n Result:");
 	display_list(*head);
 }
-// bug in here that changes current node and messes up algorithm
-int list_remove(linked_node ** head, astar_node * data)
-{
-	//printf("Current List: ");
-	//display_list(*head);
-	linked_node * del, *prev;
-	printf("Val to delete: %d ", data->waypoint.id);
-	if(data->f == (*head)->data.f)
-	{
-		if((*head)->next == NULL)
-		{
-		 	printf("\nNice Try Cheater\n ");
-			return -1;
-		}
-		else
-		{
-			
-			
-			(*head)->data = (*head)->next->data;
-			del = (*head)->next;
-			(*head)->next = (*head)->next->next;
-		//	free(del);
-			return 1;
-		}
-	}
-	prev = *head;
-	while(prev->next != NULL || prev->data.f != data->f)
-	{
-		prev = prev->next;
-	}
-	if(prev->next == NULL)
-	{
-		printf("Open your eyes");
-		return 1;
-	}
-	del = prev;
-	prev->next = prev->next->next;	
-	//free(del);	
-	return 1;
 
-}
+void list_remove_head(linked_node ** head)
+{
+	if((*head)->next == NULL)
+		*head = NULL; // temp fix for deleteing head	
+	else
+		(*head) = (*head)->next;
+
+}	
 
 void display_list(linked_node * head)
 {
@@ -427,16 +395,6 @@ int in_list(linked_node * head, astar_node * current_neighbor)
 	return 0;
 }
 
-void update_temp_neighbors(linked_node ** head, astar_node * cur,int i, int bound)
-{
-	printf("\n removing temp_neigbr in list");
-	if(i == bound)//last neighbor
-		*head = NULL;	
-	else
-		list_remove(head,cur);
-
-}
-
 void show_path(linked_node * path)
 {
 	printf("\n path:");
@@ -482,10 +440,10 @@ int * find_path(Astar * self)
 		printf("\ninserting current into closed");
 		printf("\n current to be added to close: %d",current->waypoint.id);
 		list_insert(&closed,current);		
-
 		printf("\nremoving curret from open");
-		if(list_remove(&open,current) == -1)
-			open = NULL; // temp fix for deleteing head	
+		display_list(open);  
+		list_remove_head(&open);
+		printf("\n after removal");
 		display_list(open);
 	
 		printf("\n current to get neightbors from: %d",current->waypoint.id);
@@ -504,7 +462,7 @@ int * find_path(Astar * self)
 			if(in_list(closed,&temp_neighbors->data))
 			{
 				printf("\n in closed contiue");
-				update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
+				list_remove_head(&temp_neighbors);
 				continue;
 			}
 			int tentative_G = (current->g + temp_neighbors->data.path_weight);
@@ -518,14 +476,14 @@ int * find_path(Astar * self)
 			else if(tentative_G >= temp_neighbors->data.g)
 			{
 				printf("\n not a better path continue");
-				update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
+				list_remove_head(&temp_neighbors);
 				continue;
 			}
 
 			list_append(&path,temp_neighbors->data);
 			temp_neighbors->data.g = tentative_G;
 			temp_neighbors->data.f = temp_neighbors->data.g + h_cost(&temp_neighbors->data.waypoint,&self->route.finish);
-			update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
+			list_remove_head(&temp_neighbors);
 		}
 	}
 	return 0;
