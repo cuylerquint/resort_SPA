@@ -7,7 +7,7 @@ typedef struct {
 
 typedef struct {
 	Waypoint waypoint;
-	int g,h,f;
+	int f, g, path_weight;
 } astar_node;
 
 

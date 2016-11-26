@@ -5,10 +5,10 @@ typedef struct {
 	int weight;
 	Waypoint top;
 	Waypoint bot;
-	int (*set_weight)();
+	int (*set_trail_weight)();
 } Trail;
 
-int set_weight(Trail * self)
+int set_trail_weight(Trail * self)
 {
 	int delta_x,delta_y, delta_z;
 	double  weight;
@@ -24,7 +24,7 @@ int set_weight(Trail * self)
 		weight = weight + (weight * .2);
 	else
 		weight = weight + (weight * .1);
-	return(weight);
+	return weight;
 	
 }
 

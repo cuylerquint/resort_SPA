@@ -218,6 +218,33 @@ int list_len(linked_node* item)
   	return size;
 }
 
+void list_append(linked_node** head, astar_node data)
+{
+	linked_node * new = (linked_node *) malloc(sizeof(linked_node));
+	linked_node *last = *head;  /* used in step 5*/
+
+    /* 2. put in the data  */
+        new->data  = data;
+
+    /* 3. This new node is going to be the last node, so make next 
+          of it as NULL*/
+        new->next = NULL;
+
+    /* 4. If the <a href="#">Linked List</a> is empty, then make the new node as head */
+        if (*head == NULL)
+        {
+       		*head = new;
+       		return;
+        }  
+
+    /* 5. Else traverse till the last node */
+        while (last->next != NULL)
+        	last = last->next;
+
+    /* 6. Change the next of last node */
+        last->next = new;
+        return;    
+}
 void list_insert(linked_node ** head, astar_node * data)
 {
 	linked_node * insert = (linked_node *) malloc(sizeof(linked_node));
@@ -409,77 +436,91 @@ void update_temp_neighbors(linked_node ** head, astar_node * cur,int i, int boun
 
 }
 
+void show_path(linked_node * path)
+{
+	printf("\n path:");
+	display_list(path);
+
+
+}
 int * find_path(Astar * self)
 {
 			
 	linked_node * closed = NULL;
 	linked_node * open = NULL;
 	linked_node * temp_neighbors = NULL;
+	linked_node * path = NULL;
 	astar_node * start = malloc(sizeof(astar_node));
 	
 	start->waypoint = self->route.start;	
 	start->f = h_cost(&start->waypoint,&self->route.finish);	
-	start->g = 123;
+	start->g = 0;
 	printf("\n open insert start");
 	list_insert(&open,start);
 
 
-//while open not empty
 	printf("Start While");
-	astar_node * current = get_lowest_f(open);	
-	if(equal_waypoints(current->waypoint,self->route.finish))
+	while(list_len(open) != 0)
 	{
-		//made path, reconsturt
-		printf("Found Path");
-	}	
-	printf("removing curret from open");
-	if(list_remove(&open,current) == -1)
-		open = NULL; // temp fix for deleteing head	
-	display_list(open);
-	printf("\ninserting current into closed");
-	list_insert(&closed,current);		
-	set_temp_neighbors(self,&temp_neighbors,current);
-	
-//	printf("\ncurrent neihgebors:");
-//	display_list(temp_neighbors);
-
-
-	int neighbors_len = list_len(temp_neighbors);
-	for(int i = 1; i <= neighbors_len;i++)
-	{
-		printf("\nI:%d",i);
-		printf("\nCurrent id: %d, current->g: %d",current->waypoint.id, current->g);
-		if(in_list(closed,&temp_neighbors->data))
+		astar_node * current = get_lowest_f(open);	
+		if(equal_waypoints(current->waypoint,self->route.finish))
 		{
-			printf("\n in closed contiue");
-			update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
-			continue;
-		}
-		int tentative_G = (current->g + temp_neighbors->data.path_weight);
-		printf("\nNeghib:%d tempG:%d",temp_neighbors->data.waypoint.id,tentative_G);
-		update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
-
-	}
-
-//	while(list_len(open) != 0)
-//	{
-//		astar_node * current = get_lowest_f(open);	
-//		if(equal_waypoints(current->waypoint,self->route.finish))
-//		{
-//			//made path, reconsturt
-//			printf("Found Path");
-//		}	
-//		del_list(open,current);
-//		list_insert(closed,current);		
-//	}
+			//made path, reconsturt
+			printf("Found Path");
+			show_path(path);
+			int *route_suggestion = malloc(29 * sizeof(*route_suggestion));
+			route_suggestion[0] = 2;
+			route_suggestion[1] = 3;
+			route_suggestion[2] = 4;
+			return route_suggestion;
+		}	
+		printf("removing curret from open");
+		if(list_remove(&open,current) == -1)
+			open = NULL; // temp fix for deleteing head	
+		display_list(open);
+		printf("\ninserting current into closed");
+		list_insert(&closed,current);		
+		set_temp_neighbors(self,&temp_neighbors,current);
 	
+	//	printf("\ncurrent neihgebors:");
+	//	display_list(temp_neighbors);
 
 
-	int *route_suggestion = malloc(29 * sizeof(*route_suggestion));
-	route_suggestion[0] = 2;
-	route_suggestion[1] = 3;
-	route_suggestion[2] = 4;
-	return route_suggestion;
+		int neighbors_len = list_len(temp_neighbors);
+		for(int i = 1; i <= neighbors_len;i++)
+		{
+			printf("\nI:%d",i);
+			printf("\nCurrent id: %d, current->g: %d",current->waypoint.id, current->g);
+			if(in_list(closed,&temp_neighbors->data))
+			{
+				printf("\n in closed contiue");
+				update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
+				continue;
+			}
+			int tentative_G = (current->g + temp_neighbors->data.path_weight);
+			printf("\nNeghib:%d tempG:%d",temp_neighbors->data.waypoint.id,tentative_G);
+			if(in_list(open,&temp_neighbors->data) == 0)
+			{
+				printf("\ninserting temp into open");
+				list_insert(&open,&temp_neighbors->data);	
+
+			}
+			else if(tentative_G >= temp_neighbors->data.g)
+			{
+				printf("\n not a better path continue");
+				update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
+				continue;
+			}
+
+		//update	
+		//mark came,from
+			list_append(&path,temp_neighbors->data);
+			temp_neighbors->data.g = tentative_G;
+			temp_neighbors->data.f = temp_neighbors->data.g + h_cost(&temp_neighbors->data.waypoint,&self->route.finish);
+			update_temp_neighbors(&temp_neighbors,&temp_neighbors->data,i,neighbors_len);
+		}
+	}
+	return 0;
 }
 
 
