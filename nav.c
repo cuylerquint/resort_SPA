@@ -11,7 +11,7 @@
 void write_to_suggested_dat(FILE * st,FILE * sw, Trail * trail, int i);
 int listLength(linked_node* item);
 void display_list(linked_node * head);
-void update_neighbor(Astar * self,linked_node ** temp_neighbors, int g);
+void update_neighbor(Astar * self,linked_node ** open,linked_node ** current_neighbors, int g);
 
 
 void init_Astar(Astar * this, Resort * resort , Route * route)
@@ -481,17 +481,8 @@ int * find_path(Astar * self)
 				list_remove_head(&temp_neighbors);
 				continue;
 			}
-
-
-//g is not updateing the value out of this scope, once the loop ends values revert back to default
 			list_append(&path,temp_neighbors->data);
-		//	temp_neighbors->data.g = tentative_G;
-			//temp->g = tentative_G;
-//			temp_neighbors->data.g = tentative_G;
-//			printf("\n h_cost of neighbor:%d",h_cost(&temp_neighbors->data.waypoint,&self->route.finish));
-//			temp_neighbors->data.f = temp_neighbors->data.g + h_cost(&temp_neighbors->data.waypoint,&self->route.finish);
-//			printf("\nNeigbor %d  g:%d f:%d",temp_neighbors->data.waypoint.id,temp_neighbors->data.g,temp_neighbors->data.f);
-			update_neighbor(self,&temp_neighbors,tentative_G);
+			update_neighbor(self,&open,&temp_neighbors,tentative_G);
 			list_remove_head(&temp_neighbors);
 		}
 	}
@@ -499,15 +490,21 @@ int * find_path(Astar * self)
 }
 
 
-void update_neighbor(Astar * self,linked_node ** temp_neighbors, int g)
+void update_neighbor(Astar * self,linked_node ** open,linked_node ** current_neighbor, int g)
 {
-	(*temp_neighbors)->data.g = g;
-	printf("\n from update");
-	display_list(*temp_neighbors);
-	(*temp_neighbors)->data.g = g;
-//	printf("\n h_cost of neighbor:%d",h_cost(&temp_neighbors->data.waypoint,&self->route.finish));
-//	temp_neighbors->data.f = temp_neighbors->data.g + h_cost(&temp_neighbors->data.waypoint,&self->route.finish);
-//	printf("\nNeigbor %d  g:%d f:%d",temp_neighbors->data.waypoint.id,temp_neighbors->data.g,temp_neighbors->data.f);
+	linked_node * temp = *open;
+    	while (temp != NULL)
+    	{
+        	if (temp->data.waypoint.id == (*current_neighbor)->data.waypoint.id)
+        	{
+            		printf("\nfound neighbor in open updating g");
+			temp->data.g = g;
+			temp->data.f = temp->data.g + h_cost(&temp->data.waypoint,&self->route.finish);
+			printf("\nNeigbor %d  g:%d f:%d",temp->data.waypoint.id,temp->data.g,temp->data.f);
+            		return;
+        	}
+        	temp = temp->next;
+    	}
 }
 int main(void)
 {
