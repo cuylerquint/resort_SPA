@@ -11,6 +11,7 @@
 void write_to_suggested_dat(FILE * st,FILE * sw, Trail * trail, int i);
 int listLength(linked_node* item);
 void display_list(linked_node * head);
+void update_neighbor(Astar * self,linked_node ** temp_neighbors, int g);
 
 
 void init_Astar(Astar * this, Resort * resort , Route * route)
@@ -261,8 +262,8 @@ void list_insert(linked_node ** head, astar_node * data)
 	}	
 	else
 	{
-		printf("Inserting %d into : ",data->waypoint.id);
-		display_list(*head);
+		//printf("Inserting %d into : ",data->waypoint.id);
+		//display_list(*head);
 		linked_node * temp, *prev;
 		temp = *head;
 		while(temp != NULL && temp->data.f <= data->f)
@@ -273,8 +274,8 @@ void list_insert(linked_node ** head, astar_node * data)
 		insert->next = temp;
 		prev->next = insert;	
 	}
-	printf("\n Result:");
-	display_list(*head);
+	//printf("\n Result:");
+	//display_list(*head);
 }
 
 void list_remove_head(linked_node ** head)
@@ -292,7 +293,7 @@ void display_list(linked_node * head)
 	printf("\nList: ");
 	while(temp != NULL)
 	{
-		printf("%d->",temp->data.waypoint.id);
+		printf("ID:%d g:%d f:%d->",temp->data.waypoint.id,temp->data.g,temp->data.f);
 		temp = temp->next;
 	}
 	printf("NULL\n\n");
@@ -455,16 +456,17 @@ int * find_path(Astar * self)
 
 
 		int neighbors_len = list_len(temp_neighbors);
+		printf("\nCurrent id: %d, current->g: %d",current->waypoint.id, current->g);
 		for(int i = 1; i <= neighbors_len;i++)
 		{
 			printf("\nI:%d",i);
-			printf("\nCurrent id: %d, current->g: %d",current->waypoint.id, current->g);
 			if(in_list(closed,&temp_neighbors->data))
 			{
 				printf("\n in closed contiue");
 				list_remove_head(&temp_neighbors);
 				continue;
 			}
+			printf("\n current ->g %d +  path weight %d",current->g,temp_neighbors->data.path_weight);
 			int tentative_G = (current->g + temp_neighbors->data.path_weight);
 			printf("\nNeghib:%d tempG:%d",temp_neighbors->data.waypoint.id,tentative_G);
 			if(in_list(open,&temp_neighbors->data) == 0)
@@ -480,9 +482,16 @@ int * find_path(Astar * self)
 				continue;
 			}
 
+
+//g is not updateing the value out of this scope, once the loop ends values revert back to default
 			list_append(&path,temp_neighbors->data);
-			temp_neighbors->data.g = tentative_G;
-			temp_neighbors->data.f = temp_neighbors->data.g + h_cost(&temp_neighbors->data.waypoint,&self->route.finish);
+		//	temp_neighbors->data.g = tentative_G;
+			//temp->g = tentative_G;
+//			temp_neighbors->data.g = tentative_G;
+//			printf("\n h_cost of neighbor:%d",h_cost(&temp_neighbors->data.waypoint,&self->route.finish));
+//			temp_neighbors->data.f = temp_neighbors->data.g + h_cost(&temp_neighbors->data.waypoint,&self->route.finish);
+//			printf("\nNeigbor %d  g:%d f:%d",temp_neighbors->data.waypoint.id,temp_neighbors->data.g,temp_neighbors->data.f);
+			update_neighbor(self,&temp_neighbors,tentative_G);
 			list_remove_head(&temp_neighbors);
 		}
 	}
@@ -490,6 +499,16 @@ int * find_path(Astar * self)
 }
 
 
+void update_neighbor(Astar * self,linked_node ** temp_neighbors, int g)
+{
+	(*temp_neighbors)->data.g = g;
+	printf("\n from update");
+	display_list(*temp_neighbors);
+	(*temp_neighbors)->data.g = g;
+//	printf("\n h_cost of neighbor:%d",h_cost(&temp_neighbors->data.waypoint,&self->route.finish));
+//	temp_neighbors->data.f = temp_neighbors->data.g + h_cost(&temp_neighbors->data.waypoint,&self->route.finish);
+//	printf("\nNeigbor %d  g:%d f:%d",temp_neighbors->data.waypoint.id,temp_neighbors->data.g,temp_neighbors->data.f);
+}
 int main(void)
 {
 	Waypoint waypoints[20];
