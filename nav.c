@@ -11,7 +11,8 @@
 void write_to_suggested_dat(FILE * st,FILE * sw, Trail * trail, int i);
 int listLength(linked_node* item);
 void display_list(linked_node * head);
-void update_neighbor(Astar * self,linked_node ** open,linked_node ** current_neighbors, int g);
+linked_node * update_neighbor(Astar * self,linked_node ** open,linked_node ** current_neighbors, int g);
+void update_open(linked_node ** open, linked_node ** current_neighbor);
 
 
 void init_Astar(Astar * this, Resort * resort , Route * route)
@@ -420,9 +421,10 @@ int * find_path(Astar * self)
 
 
 	printf("\nStart While");
+	int branch = 1;
 	while(list_len(open) != 0)
 	{
-		printf("\n------------------------------");  
+		printf("\n---------Branch %d---------------",branch);  
 		printf("\nfinding lowest f on open list:");
 		display_list(open);  
 		astar_node * current = get_lowest_f(open);	
@@ -437,7 +439,10 @@ int * find_path(Astar * self)
 			route_suggestion[1] = 3;
 			route_suggestion[2] = 4;
 			return route_suggestion;
-		}	
+		}
+
+
+		//bug where lowest f is not at front of list, lowest f needs to be head for removal func	
 		printf("\ninserting current into closed");
 		printf("\n current to be added to close: %d",current->waypoint.id);
 		list_insert(&closed,current);		
@@ -471,6 +476,7 @@ int * find_path(Astar * self)
 			printf("\nNeghib:%d tempG:%d",temp_neighbors->data.waypoint.id,tentative_G);
 			if(in_list(open,&temp_neighbors->data) == 0)
 			{
+				//f gets updated after sorted insert making the lowest f not head
 				printf("\ninserting temp into open");
 				list_insert(&open,&temp_neighbors->data);	
 
@@ -481,16 +487,48 @@ int * find_path(Astar * self)
 				list_remove_head(&temp_neighbors);
 				continue;
 			}
+			// make a new list, insert the new value after update, then set open to temp
 			list_append(&path,temp_neighbors->data);
-			update_neighbor(self,&open,&temp_neighbors,tentative_G);
+	//		list_remove_head(&temp_neighbors);
+			linked_node * temp = update_neighbor(self,&open,&temp_neighbors,tentative_G);
+			printf("\ntemp before update open list g:%d",temp->data.g);
+			update_open(&open,&temp);
 			list_remove_head(&temp_neighbors);
+			branch++;
 		}
 	}
 	return 0;
 }
 
+void update_open(linked_node ** open, linked_node ** current_neighbor)
+{
+	printf("\n updating open current state:");
+	display_list(*open);
+	linked_node * temp = *open;
+	linked_node * new = NULL;	
+    	while (temp != NULL)
+    	{
+        	if (temp->data.waypoint.id == (*current_neighbor)->data.waypoint.id)
+        	{
+            		printf("\nfound neighbor in open updating open, not insert old v");
+        		temp = temp->next;
+			continue;
+        	}
+		
+		printf("\n current temp insert g:%d",temp->data.g);
+		list_insert(&new,&temp->data);	
+        	temp = temp->next;
+    	}
+	printf("\n current neight g:%d",(*current_neighbor)->data.g);
+	list_insert(&new,&(*current_neighbor)->data);	
+	*open = new;
+	printf("\n updating open new final  state:");
+	display_list(new);
+	printf("\n updating open final  state:");
+	display_list(*open);
 
-void update_neighbor(Astar * self,linked_node ** open,linked_node ** current_neighbor, int g)
+}
+linked_node * update_neighbor(Astar * self,linked_node ** open,linked_node ** current_neighbor, int g)
 {
 	linked_node * temp = *open;
     	while (temp != NULL)
@@ -501,7 +539,7 @@ void update_neighbor(Astar * self,linked_node ** open,linked_node ** current_nei
 			temp->data.g = g;
 			temp->data.f = temp->data.g + h_cost(&temp->data.waypoint,&self->route.finish);
 			printf("\nNeigbor %d  g:%d f:%d",temp->data.waypoint.id,temp->data.g,temp->data.f);
-            		return;
+            		return temp;
         	}
         	temp = temp->next;
     	}
