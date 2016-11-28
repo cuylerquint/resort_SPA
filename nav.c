@@ -399,11 +399,28 @@ int in_list(linked_node * head, astar_node * current_neighbor)
 
 void show_path(linked_node * path)
 {
-	printf("\n path:");
+	//make linked_list of linked_list
+	//make first path, if temp->next does not connect to the last waypoint make new
+	// top level node, 
+	// ever new node traves all list to append it to right path
+	// once done making all possible paths, nix ones that dont connect to des
+	// then ones that do return one that has lowest cost
+	printf("\npath guesses:");
 	display_list(path);
+	linked_node * temp = path;
+	while(temp != NULL)
+	{
+		printf("\nPoint: %d",temp->data.waypoint.id);
+		temp = temp->next;
+	}
+	
 
 
 }
+
+	//possible issue with wapoint 12
+	//problem with waypoints 2 and 4, halfway thru a trail, does not connect
+
 int * find_path(Astar * self)
 {
 			
