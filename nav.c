@@ -402,7 +402,6 @@ int parents_path_len(parent_point * item)
   		++size;
     		cur = cur->next;
   	}
-	printf("\nsize :%d",size);
   	return size;
 }
 	 
@@ -448,57 +447,52 @@ void add_child(parent_point *head, Waypoint point)
     	head->path_head = new;
 }
 
-int conn(Astar * self,parent_point *cur_parent,Waypoint new_point, int len)
+int adjacent_points(Astar * self ,Waypoint x, Waypoint y)
 {
-	printf("\n route start:%d",self->route.start.id);
-	printf("\n cur parentpoint start:%d",cur_parent->point.id);
-	printf("\n cur parentpoint start:%d",cur_parent->next->point.id);
-	printf("\n new way point::%d",new_point.id);
-	int i;
-	printf("\n1 connect check");
-	printf("\n2 connect check");
-	printf("\n3connect check");
- 
-    	for (i = 1; i < len; i++)
-       		cur_parent = cur_parent->next;
- 
-    	printf ("\n last node of cur_parnet:%d", cur_parent->point.id);		
-
-}
-
-int connects_to_branch(Astar * self,parent_point  cur_parent, Waypoint new_point)
-{
-	printf("\n connect check");
-	int len = 0, i;
-    	parent_point *tail = &cur_parent;
- 
-    	while (tail != NULL)
-    	{
-        	tail = tail->next;
-        	len++;
-    	}
-    	tail = &cur_parent;
- 
-    	for (i = 1; i < len+1; i++)
-       		tail = tail->next;
- 
-    	printf ("\n last node of cur_parnet:%d", tail->point.id);		
 	for(int i = 0; i < 10;i++)
 	{
 		//printf("\nchair index : %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
-		if(self->resort.chairs[i].bot.id == tail->point.id && self->resort.chairs[i].top.id == new_point.id)
+		if(self->resort.chairs[i].bot.id == x.id && self->resort.chairs[i].top.id == y.id)
 			return 1;
 	}
 
 	for(int i = 0; i < 29;i++)
 	{
 	//	printf("\ntrail index : %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
-		if(self->resort.trails[i].top.id == tail->point.id && self->resort.trails[i].bot.id == new_point.id)
+		if(self->resort.trails[i].top.id == x.id && self->resort.trails[i].bot.id == y.id)
 			return 1;
 	}			
+
 	return 0;
 
 }
+
+int connects(Astar * self,parent_point * cur_parent, Waypoint new_point)
+{
+	child_point * cur_child = cur_parent->path_head;
+	child_point * prev = cur_parent->path_head;
+	if(cur_child == NULL)
+	{
+		return adjacent_points(self,cur_parent->point,new_point);	
+	}
+	else
+	{
+		printf("\nsteps:");
+		while(cur_child != NULL)
+		{
+			prev = cur_child;
+			printf("\n\t->%d",cur_child->point.id);
+			cur_child = cur_child->next;
+		}
+		return adjacent_points(self,prev->point,new_point);
+	}
+    	printf ("\n last node of cur_parnet:%d", prev->point.id);		
+	return 0;
+
+
+}
+
+
 void show_path(Astar * self,linked_node * path)
 {
 	//make linked_list of linked_list
@@ -512,22 +506,19 @@ void show_path(Astar * self,linked_node * path)
 	linked_node * temp = path;
 	parent_point * parent_head = NULL;
 	add_parent(&parent_head,self->route.start);
-	add_parent(&parent_head,temp->data.waypoint);
- 
-	path_dump(parent_head);
-
+//	add_parent(&parent_head,temp->data.waypoint);
+//	add_child(parent_head,temp->next->data.waypoint); 
+	path_dump(parent_head);	
 	while(temp != NULL)
 	{
 		
 		parent_point * head_cp = parent_head;
 		int cur_total_branchs = parents_path_len(parent_head);
 		printf("\n Current bracnh total:%d",cur_total_branchs);
-//		connects_to_branch(self,*head_cp,temp->data.waypoint);
 		for(int i = 1; i <= cur_total_branchs;i++)
 		{
-			if(conn(self,parent_head,temp->data.waypoint,cur_total_branchs))
+			if(connects(self,parent_head,temp->data.waypoint))
 			{
-				//
 				printf("\n add child to cur branch");		
 			}
 			else if(i == cur_total_branchs)//no connections found
