@@ -449,18 +449,32 @@ void add_child(parent_point *head, Waypoint point)
 
 int adjacent_points(Astar * self ,Waypoint x, Waypoint y)
 {
+	printf("\nID:%d x:%d y:%d z:%d",x.id,x.x,x.y,x.z);
+	printf("\nID:%d x:%d y:%d z:%d",y.id,y.x,y.y,y.z);
 	for(int i = 0; i < 10;i++)
 	{
-		//printf("\nchair index : %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
-		if(self->resort.chairs[i].bot.id == x.id && self->resort.chairs[i].top.id == y.id)
+		printf("\n\nchair index top: %d %d %d",self->resort.chairs[i].top.x,self->resort.chairs[i].top.y,self->resort.chairs[i].top.z);
+		printf("\nchair index bot: %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
+		if(self->resort.chairs[i].bot.id == x.id && self->resort.chairs[i].top.id == y.id){
+			printf("\n\n****chair index top: %d %d %d",self->resort.chairs[i].top.x,self->resort.chairs[i].top.y,self->resort.chairs[i].top.z);
+			printf("\n****chair index bot: %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
+
+		
 			return 1;
+		}
 	}
 
 	for(int i = 0; i < 29;i++)
 	{
-	//	printf("\ntrail index : %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
-		if(self->resort.trails[i].top.id == x.id && self->resort.trails[i].bot.id == y.id)
+		printf("\n\ntrail index top: %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
+		printf("\ntrail index bot: %d %d %d",self->resort.trails[i].bot.x,self->resort.trails[i].bot.y,self->resort.trails[i].bot.z);
+		if(self->resort.trails[i].top.id == x.id && self->resort.trails[i].bot.id == y.id){
+			printf("\n\n****trail index top: %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
+			printf("\n****trail index bot: %d %d %d",self->resort.trails[i].bot.x,self->resort.trails[i].bot.y,self->resort.trails[i].bot.z);
+
+
 			return 1;
+		}
 	}			
 
 	return 0;
@@ -478,13 +492,14 @@ int connects(Astar * self,parent_point * cur_parent, Waypoint new_point)
 	}
 	else
 	{
-		printf("\nsteps:");
-		while(cur_child != NULL)
-		{
-			prev = cur_child;
-			printf("\n\t->%d",cur_child->point.id);
-			cur_child = cur_child->next;
-		}
+	//	printf("\nsteps:");
+	//	while(cur_child != NULL)
+	//	{
+	//		prev = cur_child;
+	//		printf("\n\t->%d",cur_child->point.id);
+	//		cur_child = cur_child->next;
+	//	}
+		printf("\n last child of parent :%d",prev->point.id);
 		printf("\n return based of child  data");
 		return adjacent_points(self,prev->point,new_point);
 	}
@@ -510,40 +525,43 @@ void show_path(Astar * self,linked_node * path)
 	add_parent(&parent_head,self->route.start);
 //	add_parent(&parent_head,temp->data.waypoint);
 //	add_child(parent_head->next,temp->next->data.waypoint); 
-	parent_point * head_cp = parent_head;
 	path_dump(parent_head);	
 	while(temp != NULL)
 	{
-				printf("\nCur current LL:");
+		printf("\n-----------------");
+		parent_point * head_cp = parent_head;
+		printf("\nCur current LL:");
 		path_dump(head_cp);	
 		int cur_total_branchs = parents_path_len(head_cp);
 		printf("\n Current bracnh total:%d",cur_total_branchs);
 		printf("\n cur temp: %d",temp->data.waypoint.id);
 		for(int i = 1; i <= cur_total_branchs;i++)
 		{
-			printf("\nI:%d",i);
-			if(connects(self,parent_head,temp->data.waypoint))
+			printf("\nI:%d_______________",i);
+			if(connects(self,head_cp,temp->data.waypoint))
 			{
 				printf("\n add child to cur branch");		
 			
-				add_child(parent_head,temp->data.waypoint); 
-				break;
+				add_child(head_cp,temp->data.waypoint); 
+				continue;
 			}
 			else if(i == cur_total_branchs)//no connections found
 			{
 				printf("\n make a new parent node");					
-				add_parent(&head_cp,temp->data.waypoint);
+				add_parent(&parent_head,temp->data.waypoint);
 			}
 			else
 			{
 				head_cp = head_cp->next;
 			}
 		}
-		if(temp->data.waypoint.id == self->route.finish.id)
-			break;
-
-		printf("\nPoint: %d",temp->data.waypoint.id);	
+		//cannot break, mutlipe paths might reach destaion faster eg s:5 f:15
+		//if(temp->data.waypoint.id == self->route.finish.id)
+		//	break;
+		//parent_head->next = head_cp;
 		temp = temp->next;
+		printf("\n resulting head_cp:");
+		path_dump(head_cp);
 	}
 	printf("\nfinal  build");
 	path_dump(parent_head);
