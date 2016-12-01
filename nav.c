@@ -473,6 +473,7 @@ int connects(Astar * self,parent_point * cur_parent, Waypoint new_point)
 	child_point * prev = cur_parent->path_head;
 	if(cur_child == NULL)
 	{
+		printf("\n return based of parnet data");
 		return adjacent_points(self,cur_parent->point,new_point);	
 	}
 	else
@@ -484,6 +485,7 @@ int connects(Astar * self,parent_point * cur_parent, Waypoint new_point)
 			printf("\n\t->%d",cur_child->point.id);
 			cur_child = cur_child->next;
 		}
+		printf("\n return based of child  data");
 		return adjacent_points(self,prev->point,new_point);
 	}
     	printf ("\n last node of cur_parnet:%d", prev->point.id);		
@@ -507,32 +509,43 @@ void show_path(Astar * self,linked_node * path)
 	parent_point * parent_head = NULL;
 	add_parent(&parent_head,self->route.start);
 //	add_parent(&parent_head,temp->data.waypoint);
-//	add_child(parent_head,temp->next->data.waypoint); 
+//	add_child(parent_head->next,temp->next->data.waypoint); 
+	parent_point * head_cp = parent_head;
 	path_dump(parent_head);	
 	while(temp != NULL)
 	{
-		
-		parent_point * head_cp = parent_head;
-		int cur_total_branchs = parents_path_len(parent_head);
+				printf("\nCur current LL:");
+		path_dump(head_cp);	
+		int cur_total_branchs = parents_path_len(head_cp);
 		printf("\n Current bracnh total:%d",cur_total_branchs);
+		printf("\n cur temp: %d",temp->data.waypoint.id);
 		for(int i = 1; i <= cur_total_branchs;i++)
 		{
+			printf("\nI:%d",i);
 			if(connects(self,parent_head,temp->data.waypoint))
 			{
 				printf("\n add child to cur branch");		
+			
+				add_child(parent_head,temp->data.waypoint); 
+				break;
 			}
 			else if(i == cur_total_branchs)//no connections found
 			{
-				printf("\n make a new parent node");
+				printf("\n make a new parent node");					
+				add_parent(&head_cp,temp->data.waypoint);
 			}
 			else
 			{
 				head_cp = head_cp->next;
 			}
 		}
+		if(temp->data.waypoint.id == self->route.finish.id)
+			break;
+
 		printf("\nPoint: %d",temp->data.waypoint.id);	
 		temp = temp->next;
 	}
+	printf("\nfinal  build");
 	path_dump(parent_head);
 }
 
