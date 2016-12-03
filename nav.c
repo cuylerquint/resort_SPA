@@ -509,62 +509,146 @@ int connects(Astar * self,parent_point * cur_parent, Waypoint new_point)
 
 }
 
+int has_forward_connections(Astar * self,Waypoint current, linked_node * path)
+{
+	printf("\n has forward connections");
+//	if(current == NULL)
+//		return 1;
+	linked_node * temp = path;
+	int hit_cur_child = 0;
+	while(temp != NULL)
+	{
+		if(temp->data.waypoint.id == current.id)
+			hit_cur_child = 1;
+		if(hit_cur_child == 1 && adjacent_points(self,current,temp->data.waypoint))
+			return 1;
+		else
+			temp = temp->next;
+	}
+	return 0;
+}
+
+
+//int complete(parent_point * parent_head,linked_node * path)
+//{
+//	parent_point * temp = parent_head;
+//	while(temp != NULL)
+//	{
+//		printf("\nBranch Start :%d",temp->point.id);
+//		child_point * cur_child = temp->path_head;
+//		if(has_forward_connections(cur_child,path) == 1)
+//			return 0;
+//		else
+//			printf("\nComplete branch :%d",temp->point.id);
+//			parent_head = parent_head->next;
+//	}
+//	return 1;	
+//
+//}
+void remove_node(linked_node **head_ref, int key)
+{
+    // Store head node
+    struct linked_node * temp = *head_ref, *prev;
+ 
+    while (temp != NULL && temp->data.waypoint.id != key)
+    {
+        prev = temp;
+        temp = temp->next;
+    }
+ 
+    // If key was not present in linked list
+    if (temp == NULL) return;
+ 
+    // Unlink the node from linked list
+    prev->next = temp->next;
+ 
+    free(temp);  // Free memory
+}
+
+void remove_dead_ends(Astar * self, linked_node * path)
+{
+	linked_node * temp = path;
+	linked_node * prev = path;
+	while(temp != NULL)
+	{
+		printf("\ntemp ID:%d forwardC: %d",temp->data.waypoint.id, has_forward_connections(self,temp->data.waypoint,path));
+		prev = temp;
+		if(temp->data.waypoint.id != self->route.finish.id && has_forward_connections(self,temp->data.waypoint,path) == 0)
+		{
+			printf("\n removing ID: %d",temp->data.waypoint.id);
+			remove_node(&path,temp->data.waypoint.id);
+		}
+		temp = temp->next;
+	}
+	printf("\nwith deadends removed");
+	display_list(path);
+}
 
 void show_path(Astar * self,linked_node * path)
 {
-	//make linked_list of linked_list
-	//make first path, if temp->next does not connect to the last waypoint make new
-	// top level node, 
-	// ever new node traves all list to append it to right path
-	// once done making all possible paths, nix ones that dont connect to des
-	// then ones that do return one that has lowest cost
 	printf("\npath guesses:");
 	display_list(path);
-	linked_node * temp = path;
-	parent_point * parent_head = NULL;
-	add_parent(&parent_head,self->route.start);
+	remove_dead_ends(self,path);
+	remove_dead_ends(self,path);
+	remove_dead_ends(self,path);
+//	linked_node * temp = path;
+//	parent_point * parent_head = NULL;
+//	add_parent(&parent_head,self->route.start);
 //	add_parent(&parent_head,temp->data.waypoint);
 //	add_child(parent_head->next,temp->next->data.waypoint); 
-	path_dump(parent_head);	
-	while(temp != NULL)
-	{
-		printf("\n-----------------");
-		parent_point * head_cp = parent_head;
-		printf("\nCur current LL:");
-		path_dump(head_cp);	
-		int cur_total_branchs = parents_path_len(head_cp);
-		printf("\n Current bracnh total:%d",cur_total_branchs);
-		printf("\n cur temp: %d",temp->data.waypoint.id);
-		for(int i = 1; i <= cur_total_branchs;i++)
-		{
-			printf("\nI:%d_______________",i);
-			if(connects(self,head_cp,temp->data.waypoint))
-			{
-				printf("\n add child to cur branch");		
-			
-				add_child(head_cp,temp->data.waypoint); 
-				continue;
-			}
-			else if(i == cur_total_branchs)//no connections found
-			{
-				printf("\n make a new parent node");					
-				add_parent(&parent_head,temp->data.waypoint);
-			}
-			else
-			{
-				head_cp = head_cp->next;
-			}
-		}
+//	path_dump(parent_head);	
+//	while(complete(parent_head,path) == 0)
+//	{
+//		printf("\nNew Non Complete-----------------");
+//		parent_point * head_cp = parent_head;
+//		printf("\nCur current LL:");
+//		path_dump(head_cp);	
+//		int cur_total_branchs = parents_path_len(head_cp);
+//		printf("\n Current bracnh total:%d",cur_total_branchs);
+//		printf("\n cur temp: %d",temp->data.waypoint.id);
+//		while(head_cp != NULL)
+//		{	
+//			if(has_forward_connections(head_cp->path_head,path) == 0)//complete parent node
+//			{
+//				head_cp = head_cp->next;
+//			}		
+//			else
+//			{
+//			//	add_neighbors_in_list(head_cp);	
+//				
+//			}
+//
+//		}
+//		for(int i = 1; i <= cur_total_branchs;i++)
+//		{
+//			printf("\nI:%d_______________",i);
+//			if(connects(self,head_cp,temp->data.waypoint))
+//			{
+//				printf("\n add child to cur branch");		
+//			
+//				add_child(head_cp,temp->data.waypoint); 
+//				continue;
+//			}
+//			else if(i == cur_total_branchs)//no connections found
+//			{
+//				printf("\n make a new parent node");					
+//				add_parent(&parent_head,temp->data.waypoint);
+//			}
+//			else
+//			{
+//				head_cp = head_cp->next;
+//			}
+//		}
 		//cannot break, mutlipe paths might reach destaion faster eg s:5 f:15
 		//if(temp->data.waypoint.id == self->route.finish.id)
 		//	break;
 		//parent_head->next = head_cp;
-		temp = temp->next;
-		printf("\n resulting head_cp:");
-		path_dump(head_cp);
-	}
+//		temp = temp->next;
+//		printf("\n resulting head_cp:");
+//		path_dump(head_cp);
+//	}
 	printf("\nfinal  build");
-	path_dump(parent_head);
+//	path_dump(parent_head);
 }
 
 	//possible issue with wapoint 12
