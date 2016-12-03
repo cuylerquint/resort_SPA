@@ -564,8 +564,11 @@ void remove_dead_ends(Astar * self, linked_node * path)
 }
 
 
-void build_parent_up_to(Astar * self, parent_point * parent_node, linked_node * up_to, linked_node * path)
+void build_parent_up_to(Astar * self, parent_point * parent_head, linked_node * up_to, linked_node * path)
 {
+	printf("\n beginning  parent_form from build_up_to");
+	path_dump(parent_head);
+
 	linked_node * temp = path;
 	linked_node * new_list = NULL;
 	astar_node * start = malloc(sizeof(astar_node));
@@ -600,6 +603,16 @@ void build_parent_up_to(Astar * self, parent_point * parent_node, linked_node * 
 	
 	printf("\n new_list final");
 	display_list(new_list);
+	temp = new_list;
+	temp = temp->next;
+	while(temp != NULL)
+	{
+		add_child(parent_head,temp->data.waypoint); 
+		temp = temp->next;
+	}
+	printf("\n resulting parent_form from head_build");
+	path_dump(parent_head);
+	
 
 }
 
@@ -646,7 +659,7 @@ void show_path(Astar * self,linked_node * path)
 			else if(i == cur_total_branchs)//no connections found
 			{
 				printf("\n make a new parent node");					
-				add_parent(&parent_head,temp->data.waypoint);
+				add_parent(&parent_head,self->route.start);
 				build_parent_up_to(self,parent_head,temp,path);
 			}
 			else
