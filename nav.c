@@ -8,6 +8,10 @@
 #include "Astar.h"
 #include "linked_list.h"
 #include "path.h"
+#include "tree.h"
+
+
+
 
 void write_to_suggested_dat(FILE * st,FILE * sw, Trail * trail, int i);
 int listLength(linked_node* item);
@@ -449,15 +453,15 @@ void add_child(parent_point *head, Waypoint point)
 
 int adjacent_points(Astar * self ,Waypoint x, Waypoint y)
 {
-	printf("\nID:%d x:%d y:%d z:%d",x.id,x.x,x.y,x.z);
-	printf("\nID:%d x:%d y:%d z:%d",y.id,y.x,y.y,y.z);
+//	printf("\nID:%d x:%d y:%d z:%d",x.id,x.x,x.y,x.z);
+//	printf("\nID:%d x:%d y:%d z:%d",y.id,y.x,y.y,y.z);
 	for(int i = 0; i < 10;i++)
 	{
-		printf("\n\nchair index top: %d %d %d",self->resort.chairs[i].top.x,self->resort.chairs[i].top.y,self->resort.chairs[i].top.z);
-		printf("\nchair index bot: %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
+//		printf("\n\nchair index top: %d %d %d",self->resort.chairs[i].top.x,self->resort.chairs[i].top.y,self->resort.chairs[i].top.z);
+//		printf("\nchair index bot: %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
 		if(self->resort.chairs[i].bot.id == x.id && self->resort.chairs[i].top.id == y.id){
-			printf("\n\n****chair index top: %d %d %d",self->resort.chairs[i].top.x,self->resort.chairs[i].top.y,self->resort.chairs[i].top.z);
-			printf("\n****chair index bot: %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
+//			printf("\n\n****chair index top: %d %d %d",self->resort.chairs[i].top.x,self->resort.chairs[i].top.y,self->resort.chairs[i].top.z);
+//			printf("\n****chair index bot: %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
 
 		
 			return 1;
@@ -466,13 +470,11 @@ int adjacent_points(Astar * self ,Waypoint x, Waypoint y)
 
 	for(int i = 0; i < 29;i++)
 	{
-		printf("\n\ntrail index top: %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
-		printf("\ntrail index bot: %d %d %d",self->resort.trails[i].bot.x,self->resort.trails[i].bot.y,self->resort.trails[i].bot.z);
+//		printf("\n\ntrail index top: %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
+//		printf("\ntrail index bot: %d %d %d",self->resort.trails[i].bot.x,self->resort.trails[i].bot.y,self->resort.trails[i].bot.z);
 		if(self->resort.trails[i].top.id == x.id && self->resort.trails[i].bot.id == y.id){
-			printf("\n\n****trail index top: %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
-			printf("\n****trail index bot: %d %d %d",self->resort.trails[i].bot.x,self->resort.trails[i].bot.y,self->resort.trails[i].bot.z);
-
-
+//			printf("\n\n****trail index top: %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
+///			printf("\n****trail index bot: %d %d %d",self->resort.trails[i].bot.x,self->resort.trails[i].bot.y,self->resort.trails[i].bot.z);
 			return 1;
 		}
 	}			
@@ -511,7 +513,7 @@ int connects(Astar * self,parent_point * cur_parent, Waypoint new_point)
 
 int has_forward_connections(Astar * self,Waypoint current, linked_node * path)
 {
-	printf("\n has forward connections");
+	printf("\nhas forward connections");
 //	if(current == NULL)
 //		return 1;
 	linked_node * temp = path;
@@ -525,6 +527,7 @@ int has_forward_connections(Astar * self,Waypoint current, linked_node * path)
 		else
 			temp = temp->next;
 	}
+	printf("\nend of has forward");
 	return 0;
 }
 
@@ -561,6 +564,45 @@ void remove_dead_ends(Astar * self, linked_node * path)
 }
 
 
+void build_parent_up_to(Astar * self, parent_point * parent_node, linked_node * up_to, linked_node * path)
+{
+	linked_node * temp = path;
+	linked_node * new_list = NULL;
+	astar_node * start = malloc(sizeof(astar_node));
+	start->waypoint = self->route.start;	
+	list_append(&new_list,*start);
+	while(temp != NULL)
+	{
+		if(temp->data.waypoint.id == up_to->data.waypoint.id)
+		{
+			list_append(&new_list,temp->data);
+			break;
+		}
+		list_append(&new_list,temp->data);
+		temp = temp->next;
+	}
+
+	printf("\n new_list up to limit");
+	display_list(new_list);
+	temp = new_list;	
+	linked_node * prev = new_list;
+	while(temp != NULL)
+	{
+	//	printf("\ntemp ID:%d forwardC: %d",temp->data.waypoint.id, has_forward_connections(self,temp->data.waypoint,new_list));
+		prev = temp;
+		if(temp->data.waypoint.id != up_to->data.waypoint.id && has_forward_connections(self,temp->data.waypoint,new_list) == 0)
+		{
+			printf("\n removing ID: %d from new",temp->data.waypoint.id);
+			remove_node(&new_list,temp->data.waypoint.id);
+		}
+		temp = temp->next;
+	}
+	
+	printf("\n new_list final");
+	display_list(new_list);
+
+}
+
 void show_path(Astar * self,linked_node * path)
 {
 	//make linked_list of linked_list
@@ -574,6 +616,9 @@ void show_path(Astar * self,linked_node * path)
 	for(int i = 0;i < list_len(path);i++)
 		remove_dead_ends(self,path);
 	linked_node * temp = path;
+	tree_node * root = (tree_node *) malloc(sizeof(tree_node));
+	root->id = self->route.start.id;
+	printf("\n tree root id:%d",root->id);	
 	parent_point * parent_head = NULL;
 	add_parent(&parent_head,self->route.start);
 //	add_parent(&parent_head,temp->data.waypoint);
@@ -596,12 +641,13 @@ void show_path(Astar * self,linked_node * path)
 				printf("\n add child to cur branch");		
 			
 				add_child(head_cp,temp->data.waypoint); 
-				continue;
+			//	continue;
 			}
 			else if(i == cur_total_branchs)//no connections found
 			{
 				printf("\n make a new parent node");					
 				add_parent(&parent_head,temp->data.waypoint);
+				build_parent_up_to(self,parent_head,temp,path);
 			}
 			else
 			{
@@ -779,7 +825,10 @@ int main(void)
 	init_Resort(resort,waypoints,chairs,*trails);
 	system("gnuplot resort.gp -p");
 	int input_data[3];
-	get_input_data(input_data);
+	//get_input_data(input_data);
+	input_data[0] = 5;
+	input_data[1] = 15;
+	input_data[2] = 3;
 	init_Route(route,waypoints,input_data);
 	init_Astar(astar,resort,route);
 	int *route_suggestion;
