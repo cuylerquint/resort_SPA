@@ -106,9 +106,12 @@ void make_default_waypoints(Waypoint * waypoints)
 	init_Waypoint(&waypoints[15],16,500,0,500,0);
 	init_Waypoint(&waypoints[16],17,500,0,250,0);
 	init_Waypoint(&waypoints[17],18,500,0,0,0);
-	init_Waypoint(&waypoints[18],19,175,100,250,0);
-	init_Waypoint(&waypoints[19],20,250,500,175,0);	
+	init_Waypoint(&waypoints[18],19,175,100,250,0); 
+	init_Waypoint(&waypoints[19],20,350,100,175,0);	
 }
+
+
+
 
 void make_default_trails(Trail * trails, Waypoint * waypoints)
 {
@@ -182,9 +185,6 @@ void get_input_data(int * input_data)
 void display_suggestion(Astar * self,int suggested_route[], int size)
 //need to firgure out how to combine with displaying chairs as well
 {
-	//from a list of trail ids, write those trail cooridnates for gnuplot to plot yellow lines for a placement
-	// get trail from resort 
-	// first index is giving address for resort->trails odd reason?! firgure out 
 	FILE *st,*sw;	
 	st = fopen("suggested_trails.dat", "w+");	
 	sw = fopen("suggested_waypoints.dat", "w+");	
@@ -194,36 +194,30 @@ void display_suggestion(Astar * self,int suggested_route[], int size)
 		printf("\nR id: %d, R + 1: %d",suggested_route[i],suggested_route[i+1]);
 		for(int j = 0; j < 10;j++)
 		{
-			//printf("\nchair index : %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
-			if(self->resort.chairs[j].bot.id == suggested_route[i] && self->resort.chairs[j].bot.id == suggested_route[i + 1])
+			if(self->resort.chairs[j].bot.id == suggested_route[i] && self->resort.chairs[j].top.id == suggested_route[i + 1])
 			{
 				fprintf(sw, "%d\t%d\t%d\t%d\n\n",self->resort.chairs[j].bot.x,self->resort.chairs[j].bot.y,self->resort.chairs[j].bot.z,stop_count);
-				fprintf(st, "%d\t%d\t%d",self->resort.chairs[j].bot.x,self->resort.chairs[j].bot.y,self->resort.chairs[j].bot.z);
-				fprintf(st, "%d\t%d\t%d",self->resort.chairs[j].top.x,self->resort.chairs[j].top.y,self->resort.chairs[j].top.z);
+				fprintf(st, "\n\n%d\t%d\t%d",self->resort.chairs[j].bot.x,self->resort.chairs[j].bot.y,self->resort.chairs[j].bot.z);
+				fprintf(st, "\n%d\t%d\t%d",self->resort.chairs[j].top.x,self->resort.chairs[j].top.y,self->resort.chairs[j].top.z);
 			}	
 		}
 
 		for(int j = 0; j < 29;j++)
 		{
-		//	printf("\ntrail index : %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
-
 			if(self->resort.trails[j].top.id == suggested_route[i] && self->resort.trails[j].bot.id == suggested_route[i + 1])
 			{	
 				fprintf(sw, "%d\t%d\t%d\t%d\n\n",self->resort.trails[j].top.x,self->resort.trails[j].top.y,self->resort.trails[j].top.z,stop_count);
-				fprintf(st, "%d\t%d\t%d",self->resort.trails[j].top.x,self->resort.trails[j].top.y,self->resort.trails[j].top.z);
-				fprintf(st, "%d\t%d\t%d",self->resort.trails[j].bot.x,self->resort.trails[j].bot.y,self->resort.trails[j].bot.z);
-			//	printf("\ntopWid: %d topx : %d topy: %d topz: %d",trail->top.id,trail->top.x,trail->top.y,trail->top.z);
-			//	printf("\nbotWid: %d botx : %d boty: %d botz: %d",trail->bot.id,trail->bot.x,trail->bot.y,trail->bot.z);
+				fprintf(st, "\n\n%d\t%d\t%d",self->resort.trails[j].top.x,self->resort.trails[j].top.y,self->resort.trails[j].top.z);
+				fprintf(st, "\n%d\t%d\t%d",self->resort.trails[j].bot.x,self->resort.trails[j].bot.y,self->resort.trails[j].bot.z);
 			}
 		}
 		stop_count++;
 	}
-
+	fprintf(sw, "%d\t%d\t%d\t%d\n\n",self->route.finish.x,self->route.finish.y,self->route.finish.z,--stop_count);
 	fclose(st);
 	fclose(sw);
 	system("killall gnuplot_qt");
 	system("gnuplot routed_resort.gp -p");
-
 }
 
 int list_len(linked_node* item)
@@ -968,7 +962,7 @@ int main(void)
 	int input_data[3];
 //	get_input_data(input_data);
 	input_data[0] = 5;
-	input_data[1] = 15;
+	input_data[1] = 16;
 	input_data[2] = 3;
 	init_Route(route,waypoints,input_data);
 	init_Astar(astar,resort,route);
