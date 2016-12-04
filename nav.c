@@ -12,7 +12,9 @@
 
 
 
-
+int get_path_weight(Astar * self,linked_node * path);
+int get_trail_or_chair_weight(Astar * self,int prev_id,int next_id);
+void get_shortest(Astar * self, parent_point * parent_head);
 void write_to_suggested_dat(FILE * st,FILE * sw, Trail * trail, int i);
 int listLength(linked_node* item);
 void display_list(linked_node * head);
@@ -632,9 +634,6 @@ void show_path(Astar * self,linked_node * path)
 	for(int i = 0;i < list_len(path);i++)
 		remove_dead_ends(self,path);
 	linked_node * temp = path;
-	tree_node * root = (tree_node *) malloc(sizeof(tree_node));
-	root->id = self->route.start.id;
-	printf("\n tree root id:%d",root->id);	
 	parent_point * parent_head = NULL;
 	add_parent(&parent_head,self->route.start);
 //	add_parent(&parent_head,temp->data.waypoint);
@@ -682,8 +681,98 @@ void show_path(Astar * self,linked_node * path)
 	}
 	printf("\nfinal  build");
 	path_dump(parent_head);
+
+
+	get_shortest(self,parent_head);
 }
 
+void get_shortest(Astar * self, parent_point * parent_head)
+{
+	parent_point * temp = parent_head;
+	linked_node * shortest = malloc(sizeof(linked_node));;
+	int low = 99999999;
+	while(temp != NULL)
+	{
+		astar_node * start = malloc(sizeof(astar_node));
+		start->waypoint = self->route.start;	
+		linked_node * temp_path = NULL;
+		printf("\nBranch Start");
+		child_point * cur_child = temp->path_head;
+		while(cur_child != NULL)
+		{
+			astar_node * temp_node = malloc(sizeof(astar_node));
+			temp_node->waypoint = cur_child->point;	
+			list_append(&temp_path,*temp_node);
+			printf("\n\t->%d",cur_child->point.id);
+			cur_child = cur_child->next;
+		}
+		list_append(&temp_path,*start);
+		printf("\nnew formatted path:");
+		display_list(temp_path);
+		int temp_low = get_path_weight(self,temp_path);
+		if(temp_low < low)
+		{
+			printf("\ntest");
+			low = temp_low;
+			printf("\ntest2");
+			shortest = temp_path;
+		}
+		
+		temp = temp->next;
+	}	
+
+}
+
+
+int get_path_weight(Astar * self,linked_node * path)
+{
+	
+	linked_node * temp = path;
+	linked_node * prev = temp;
+	int running = 0;
+	int ctw = 0;
+    	while (temp != NULL)
+    	{
+		printf("\n here");
+        	prev = temp;
+        	temp = temp->next;
+		if(temp !== NULL)
+			ctw = get_trail_or_chair_weight(self,prev->data.waypoint.id,temp->data.waypoint.id);
+		printf("\n adding %d to running",ctw);
+    	}
+	
+	return running;
+
+}	
+
+int get_trail_or_chair_weight(Astar * self,int prev_id,int next_id)
+{
+	for(int i = 0; i < 10;i++)
+	{
+//		printf("\n\nchair index top: %d %d %d",self->resort.chairs[i].top.x,self->resort.chairs[i].top.y,self->resort.chairs[i].top.z);
+//		printf("\nchair index bot: %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
+		if(self->resort.chairs[i].bot.id == next_id && self->resort.chairs[i].top.id == prev_id){
+//			printf("\n\n****chair index top: %d %d %d",self->resort.chairs[i].top.x,self->resort.chairs[i].top.y,self->resort.chairs[i].top.z);
+//			printf("\n****chair index bot: %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
+
+		
+			return self->resort.chairs[i].weight;
+		}
+	}
+
+	for(int i = 0; i < 29;i++)
+	{
+//		printf("\n\ntrail index top: %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
+//		printf("\ntrail index bot: %d %d %d",self->resort.trails[i].bot.x,self->resort.trails[i].bot.y,self->resort.trails[i].bot.z);
+		if(self->resort.trails[i].top.id == next_id && self->resort.trails[i].bot.id == prev_id){
+//			printf("\n\n****trail index top: %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
+///			printf("\n****trail index bot: %d %d %d",self->resort.trails[i].bot.x,self->resort.trails[i].bot.y,self->resort.trails[i].bot.z);
+			return self->resort.trails[i].weight;
+		}
+	}
+
+	return 0;
+}	
 	//possible issue with wapoint 12
 	//problem with waypoints 2 and 4, halfway thru a trail, does not connect
 
@@ -829,6 +918,7 @@ linked_node * update_neighbor(Astar * self,linked_node ** open,linked_node ** cu
 }
 int main(void)
 {
+	system("killall gnuplot_qt");
 	Waypoint waypoints[20];
 	Trail **trails = malloc(29 * sizeof(Trail*));
 	Resort *resort = malloc(sizeof(Resort*));
