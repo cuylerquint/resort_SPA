@@ -179,7 +179,7 @@ void get_input_data(int * input_data)
 	
 }
 
-void display_suggestion(int suggested_route[], Resort * resort)
+void display_suggestion(Astar * self,int suggested_route[], int size)
 //need to firgure out how to combine with displaying chairs as well
 {
 	//from a list of trail ids, write those trail cooridnates for gnuplot to plot yellow lines for a placement
@@ -189,32 +189,40 @@ void display_suggestion(int suggested_route[], Resort * resort)
 	st = fopen("suggested_trails.dat", "w+");	
 	sw = fopen("suggested_waypoints.dat", "w+");	
 	int stop_count = 1;
-	for(int i = 0; i < 29; i++){
-		for(int j = 0;j < 29;j++){
-			if(suggested_route[i] == resort->trails[j].id)
+	for(int i = 0 ; i < size;i++)
+	{
+		printf("\nR id: %d, R + 1: %d",suggested_route[i],suggested_route[i+1]);
+		for(int j = 0; j < 10;j++)
+		{
+			//printf("\nchair index : %d %d %d",self->resort.chairs[i].bot.x,self->resort.chairs[i].bot.y,self->resort.chairs[i].bot.z);
+			if(self->resort.chairs[j].bot.id == suggested_route[i] && self->resort.chairs[j].bot.id == suggested_route[i + 1])
 			{
-				write_to_suggested_dat(st,sw,&resort->trails[j],stop_count);
-				stop_count++;
-//				printf("\nR trail id: %d, suggested: %d",resort->trails[j].id, suggested_route[i]);
+				fprintf(sw, "%d\t%d\t%d\t%d\n\n",self->resort.chairs[j].bot.x,self->resort.chairs[j].bot.y,self->resort.chairs[j].bot.z,stop_count);
+				fprintf(st, "%d\t%d\t%d",self->resort.chairs[j].bot.x,self->resort.chairs[j].bot.y,self->resort.chairs[j].bot.z);
+				fprintf(st, "%d\t%d\t%d",self->resort.chairs[j].top.x,self->resort.chairs[j].top.y,self->resort.chairs[j].top.z);
+			}	
+		}
+
+		for(int j = 0; j < 29;j++)
+		{
+		//	printf("\ntrail index : %d %d %d",self->resort.trails[i].top.x,self->resort.trails[i].top.y,self->resort.trails[i].top.z);
+
+			if(self->resort.trails[j].top.id == suggested_route[i] && self->resort.trails[j].bot.id == suggested_route[i + 1])
+			{	
+				fprintf(sw, "%d\t%d\t%d\t%d\n\n",self->resort.trails[j].top.x,self->resort.trails[j].top.y,self->resort.trails[j].top.z,stop_count);
+				fprintf(st, "%d\t%d\t%d",self->resort.trails[j].top.x,self->resort.trails[j].top.y,self->resort.trails[j].top.z);
+				fprintf(st, "%d\t%d\t%d",self->resort.trails[j].bot.x,self->resort.trails[j].bot.y,self->resort.trails[j].bot.z);
+			//	printf("\ntopWid: %d topx : %d topy: %d topz: %d",trail->top.id,trail->top.x,trail->top.y,trail->top.z);
+			//	printf("\nbotWid: %d botx : %d boty: %d botz: %d",trail->bot.id,trail->bot.x,trail->bot.y,trail->bot.z);
 			}
 		}
+		stop_count++;
 	}
 
 	fclose(st);
 	fclose(sw);
 	system("killall gnuplot_qt");
 	system("gnuplot routed_resort.gp -p");
-
-}
-
-
-void write_to_suggested_dat(FILE *st,FILE *sw,Trail * trail, int stop_count)
-{
-	fprintf(sw, "%d\t%d\t%d\t%d\n\n",trail->top.x,trail->top.y,trail->top.z,stop_count);
-	fprintf(st, "%d\t%d\t%d",trail->top.x,trail->top.y,trail->top.z);
-	fprintf(st, "\n%d\t%d\t%d\n\n",trail->bot.x,trail->bot.y,trail->bot.z);
-//	printf("\ntopWid: %d topx : %d topy: %d topz: %d",trail->top.id,trail->top.x,trail->top.y,trail->top.z);
-//	printf("\nbotWid: %d botx : %d boty: %d botz: %d",trail->bot.id,trail->bot.x,trail->bot.y,trail->bot.z);
 
 }
 
@@ -621,7 +629,7 @@ void build_parent_up_to(Astar * self, parent_point * parent_head, linked_node * 
 
 }
 
-void show_path(Astar * self,linked_node * path)
+void  show_path(Astar * self,linked_node * path)
 {
 	//make linked_list of linked_list
 	//make first path, if temp->next does not connect to the last waypoint make new
@@ -683,10 +691,14 @@ void show_path(Astar * self,linked_node * path)
 	path_dump(parent_head);
 
 
-	get_shortest(self,parent_head);
+	return get_shortest(self,parent_head);
+
+	
+
+
 }
 
-void get_shortest(Astar * self, parent_point * parent_head)
+void  get_shortest(Astar * self, parent_point * parent_head)
 {
 	parent_point * temp = parent_head;
 	linked_node * shortest = malloc(sizeof(linked_node));;
@@ -720,7 +732,28 @@ void get_shortest(Astar * self, parent_point * parent_head)
 		
 		temp = temp->next;
 	}	
+	printf("\nshortest");
+	display_list(shortest);
+	int index = list_len(shortest), size = list_len(shortest);
+	int route_suggestion[size];
+	//int * route_suggestion = malloc(size_index * sizeof(*route_suggestion));
+	while(shortest != NULL)
+	{
+		route_suggestion[index-1] = shortest->data.waypoint.id;	
+		index--;
+		shortest = shortest->next;
+	}
+	printf("\nr:%d",size);
+	
+	for(int i = 0; i < size; i++){
+		printf("\nr:%d",route_suggestion[i]);
+	}
+	display_suggestion(self,route_suggestion,size);
+//	route_suggestion[0] = 2;
+//	route_suggestion[1] = 3;
+//	route_suggestion[2] = 4;
 
+	
 }
 
 
@@ -730,15 +763,20 @@ int get_path_weight(Astar * self,linked_node * path)
 	linked_node * temp = path;
 	linked_node * prev = temp;
 	int running = 0;
-	int ctw = 0;
     	while (temp != NULL)
     	{
 		printf("\n here");
         	prev = temp;
         	temp = temp->next;
-		if(temp !== NULL)
-			ctw = get_trail_or_chair_weight(self,prev->data.waypoint.id,temp->data.waypoint.id);
-		printf("\n adding %d to running",ctw);
+		
+		if(temp != NULL)
+		{
+			running += get_trail_or_chair_weight(self,prev->data.waypoint.id,temp->data.waypoint.id);
+			
+			printf("\n running:%d",running);
+		}
+		else
+			break;
     	}
 	
 	return running;
@@ -776,7 +814,7 @@ int get_trail_or_chair_weight(Astar * self,int prev_id,int next_id)
 	//possible issue with wapoint 12
 	//problem with waypoints 2 and 4, halfway thru a trail, does not connect
 
-int * find_path(Astar * self)
+void find_path(Astar * self)
 {
 			
 	linked_node * closed = NULL;
@@ -806,11 +844,7 @@ int * find_path(Astar * self)
 			//made path, reconsturt
 			printf("\nFound Path");
 			show_path(self,path);
-			int *route_suggestion = malloc(29 * sizeof(*route_suggestion));
-			route_suggestion[0] = 2;
-			route_suggestion[1] = 3;
-			route_suggestion[2] = 4;
-			return route_suggestion;
+			return;
 		}
 
 
@@ -869,7 +903,6 @@ int * find_path(Astar * self)
 			branch++;
 		}
 	}
-	return 0;
 }
 
 void update_open(linked_node ** open, linked_node ** current_neighbor)
@@ -933,14 +966,12 @@ int main(void)
 	init_Resort(resort,waypoints,chairs,*trails);
 	system("gnuplot resort.gp -p");
 	int input_data[3];
-	//get_input_data(input_data);
+//	get_input_data(input_data);
 	input_data[0] = 5;
 	input_data[1] = 15;
 	input_data[2] = 3;
 	init_Route(route,waypoints,input_data);
 	init_Astar(astar,resort,route);
-	int *route_suggestion;
-	route_suggestion = find_path(astar);	
-	display_suggestion(route_suggestion, resort);
+	find_path(astar);	
 	return(1);	
 }
