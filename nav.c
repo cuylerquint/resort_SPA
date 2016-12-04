@@ -587,18 +587,21 @@ void build_parent_up_to(Astar * self, parent_point * parent_head, linked_node * 
 
 	printf("\n new_list up to limit");
 	display_list(new_list);
-	temp = new_list;	
-	linked_node * prev = new_list;
-	while(temp != NULL)
+	for(int i = 0;i < list_len(new_list);i++)
 	{
-	//	printf("\ntemp ID:%d forwardC: %d",temp->data.waypoint.id, has_forward_connections(self,temp->data.waypoint,new_list));
-		prev = temp;
-		if(temp->data.waypoint.id != up_to->data.waypoint.id && has_forward_connections(self,temp->data.waypoint,new_list) == 0)
+		temp = new_list;	
+		linked_node * prev = new_list;
+		while(temp != NULL)
 		{
-			printf("\n removing ID: %d from new",temp->data.waypoint.id);
-			remove_node(&new_list,temp->data.waypoint.id);
+	//		printf("\ntemp ID:%d forwardC: %d",temp->data.waypoint.id, has_forward_connections(self,temp->data.waypoint,new_list));
+			prev = temp;
+			if(temp->data.waypoint.id != up_to->data.waypoint.id && has_forward_connections(self,temp->data.waypoint,new_list) == 0)
+			{
+				printf("\n removing ID: %d from new",temp->data.waypoint.id);
+				remove_node(&new_list,temp->data.waypoint.id);
+			}
+			temp = temp->next;
 		}
-		temp = temp->next;
 	}
 	
 	printf("\n new_list final");
@@ -641,19 +644,21 @@ void show_path(Astar * self,linked_node * path)
 	{
 		printf("\n-----------------");
 		parent_point * head_cp = parent_head;
-		printf("\nCur current LL:");
-		path_dump(head_cp);	
 		int cur_total_branchs = parents_path_len(head_cp);
 		printf("\n Current bracnh total:%d",cur_total_branchs);
 		printf("\n cur temp: %d",temp->data.waypoint.id);
 		for(int i = 1; i <= cur_total_branchs;i++)
 		{
 			printf("\nI:%d_______________",i);
+			printf("\nCur current LL:");
+			path_dump(head_cp);	
+
 			if(connects(self,head_cp,temp->data.waypoint))
 			{
 				printf("\n add child to cur branch");		
 			
 				add_child(head_cp,temp->data.waypoint); 
+				head_cp = head_cp->next;
 			//	continue;
 			}
 			else if(i == cur_total_branchs)//no connections found
