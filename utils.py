@@ -1,4 +1,6 @@
 import math
+import inits
+from inits import *
 
 def h_cost(cur,goal):
 	delta_x = (cur.x - goal.x)
@@ -23,7 +25,29 @@ def get_lowest_f(list):
 			low = node
 	return low
 
-
 def build_path(list):
 	print "non-built path:"
 	display_list(list)
+
+def neighbors(current):
+	global trails
+	global chairs
+	neighbors = []
+	for t in trails:
+		if t.top_id == current.waypoint.id:
+			neighbors.append(get_waypoint_with_id(t.bot_id))
+	for c in chairs:
+		if c.bot == current.waypoint:
+			neighbors.append(c.top)
+
+	print "neighbors of :" , current.waypoint.id
+	for n in neighbors:
+		print n.id
+
+	return neighbors
+
+def get_waypoint_with_id(id):
+	global waypoints
+	for w in waypoints:
+		if w.id == id:
+			return w

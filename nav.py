@@ -45,6 +45,16 @@ def run_astar():
 			print "path found"
 			build_path(path)
 			break
+		open.remove(current)
+		closed.append(current)
+		for n in neighbors(current):
+			if n in closed:
+				continue
+			if n not in open:
+				open.append(n)
+			tentative_g = current.g + h_cost(current.waypoint,n.waypoint)
+
+
 
 
 init()
