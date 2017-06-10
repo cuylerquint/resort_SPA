@@ -39,11 +39,6 @@ def neighbors(current):
 	for c in chairs:
 		if c.bot == current.waypoint:
 			neighbors.append(c.top)
-
-	print "neighbors of :" , current.waypoint.id
-	for n in neighbors:
-		print n.id
-
 	return neighbors
 
 def get_waypoint_with_id(id):
@@ -51,3 +46,18 @@ def get_waypoint_with_id(id):
 	for w in waypoints:
 		if w.id == id:
 			return w
+
+def get_astar_with_id(id,astar_nodes):
+	for a in astar_nodes:
+		if a.waypoint.id = id:
+			return a
+
+
+def get_neighbor_g(neighbor, astar_nodes):
+	for a in astar_nodes:
+		if a.waypoint = neighbor:
+			return a.g
+
+def update_best_map(best_map,current,n):
+	print "cur map"
+	print best_map
