@@ -22,3 +22,8 @@ def get_lowest_f(list):
 		if node.f < low.f:
 			low = node
 	return low
+
+
+def build_path(list):
+	print "non-built path:"
+	display_list(list)

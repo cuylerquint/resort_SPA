@@ -5,7 +5,7 @@ waypoints = []
 trails = []
 chairs = []
 
-def init_waypoints():	
+def init_waypoints():
 	w1 = waypoint(1,0,500,0,0)
 	w2 = waypoint(2,0,400,100,0)
 	w3 = waypoint(3,100,400,100,0)
@@ -24,10 +24,10 @@ def init_waypoints():
 	w16 = waypoint(16,500,0,500,0)
 	w17 = waypoint(17,500,0,250,0)
 	w18 = waypoint(18,500,0,0,0)
-	w19 = waypoint(19,175,100,250,0) 
-	w20 = waypoint(20,350,100,175,0)	
-	
-	global waypoints 
+	w19 = waypoint(19,175,100,250,0)
+	w20 = waypoint(20,350,100,175,0)
+
+	global waypoints
 	waypoints.append(w1)
 	waypoints.append(w2)
 	waypoints.append(w3)
@@ -48,8 +48,8 @@ def init_waypoints():
 	waypoints.append(w18)
 	waypoints.append(w19)
 	waypoints.append(w20)
-	
-		
+
+
 def init_trails():
 	#green list,id,diff,top_id,bot_id
 	global waypoints
@@ -85,7 +85,7 @@ def init_trails():
 	t26 = trail(26,3,13,17)
 	t27 = trail(27,3,5,19)
 	t28 = trail(28,3,19,16)
-	t29 = trail(29,3,19,15)	
+	t29 = trail(29,3,19,15)
 
 
 	global trails
@@ -131,16 +131,16 @@ def init_chairs():
 	c6 = chair(6,6,waypoints[0],waypoints[18])
 	c7 = chair(7,6,waypoints[0],waypoints[19])
 	c8 = chair(8,3,waypoints[3],waypoints[11])
-	c9 = chair(9,7,waypoints[6],waypoints[16])	
-	chairs.append(c1)	
-	chairs.append(c2)	
-	chairs.append(c3)	
-	chairs.append(c4)	
-	chairs.append(c5)	
-	chairs.append(c6)	
-	chairs.append(c7)	
-	chairs.append(c8)	
-	chairs.append(c9)	
+	c9 = chair(9,7,waypoints[6],waypoints[16])
+	chairs.append(c1)
+	chairs.append(c2)
+	chairs.append(c3)
+	chairs.append(c4)
+	chairs.append(c5)
+	chairs.append(c6)
+	chairs.append(c7)
+	chairs.append(c8)
+	chairs.append(c9)
 
 
 
@@ -150,7 +150,7 @@ def init_resort():
 	global trails
 	global chairs
 	global r1
-	r1 = resort(waypoints,chairs,trails)	
+	r1 = resort(waypoints,chairs,trails)
 
 
 def init_route(input):
@@ -163,8 +163,8 @@ def init_route(input):
 			start = wp
 		if wp.id == int(input[1]):
 			finish = wp
-	
-	route = route(start,finish,input[2])		
+
+	route = route(start,finish,input[2])
 
 def get_input():
 	os.system("killall gnuplot_qt")

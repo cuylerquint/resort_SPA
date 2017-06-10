@@ -24,9 +24,11 @@ def nav():
 	print "your diff:" + str(route.pref)
 
 def run_astar():
+	global route
 	print "bitch"
 	closed = []
 	open = []
+	path = []
 	temp_neighbors = []
 	start = astar_node(inits.route.start)
 	start.f = h_cost(start.waypoint, inits.route.finish)
@@ -39,9 +41,10 @@ def run_astar():
 		display_list(open)
 		current = get_lowest_f(open)
 		print "current lowest:" + str(current.waypoint.id)
-		if(current.waypoint.id == inits.route.finish.waypoint.id):
+		if(current.waypoint.id == inits.route.finish.id):
 			print "path found"
 			build_path(path)
+			break
 
 
 init()
