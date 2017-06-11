@@ -27,9 +27,10 @@ def get_lowest_f(list):
 
 def build_path(list):
 	print "non-built path:"
-	display_list(list)
+	for n in list:
+		print n.id
 
-def neighbors(current):
+def neighbors(current):  #  modify based off skill
 	global trails
 	global chairs
 	neighbors = []
@@ -49,15 +50,19 @@ def get_waypoint_with_id(id):
 
 def get_astar_with_id(id,astar_nodes):
 	for a in astar_nodes:
-		if a.waypoint.id = id:
+		if a.waypoint.id == id:
 			return a
 
 
 def get_neighbor_g(neighbor, astar_nodes):
 	for a in astar_nodes:
-		if a.waypoint = neighbor:
+		if a.waypoint == neighbor:
 			return a.g
 
 def update_best_map(best_map,current,n):
-	print "cur map"
-	print best_map
+	print "cur map", best_map
+	if n not in best_map:
+		best_map[n] = current.waypoint
+	for key in best_map:
+		if key == n:
+			best_map[key] = current.waypoint
