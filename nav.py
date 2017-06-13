@@ -49,7 +49,7 @@ def run_astar():
 			break
 		open.remove(current)
 		closed.append(current)
-		for n in neighbors(current):
+		for n in neighbors(current,inits.route.pref):
 			if all(n.id != a.waypoint.id for a in astar_nodes): # new astar node for this neigbor
 				print "new astar node:" , n.id
 				temp_astar_node = astar_node(n)

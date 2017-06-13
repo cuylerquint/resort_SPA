@@ -2,7 +2,7 @@ import math
 import inits
 from inits import *
 
-def h_cost(cur,goal):
+def h_cost(cur,goal):   # add in trail weights, so black are faster
 	delta_x = (cur.x - goal.x)
 	delta_y = (cur.y - goal.y)
 	delta_z = (cur.z - goal.z)
@@ -30,12 +30,12 @@ def build_path(list):
 	for n in list:
 		print n.id
 
-def neighbors(current):  #  modify based off skill
+def neighbors(current,pref_level):
 	global trails
 	global chairs
 	neighbors = []
 	for t in trails:
-		if t.top_id == current.waypoint.id:
+		if t.top_id == current.waypoint.id and t.weight <= pref_level:
 			neighbors.append(get_waypoint_with_id(t.bot_id))
 	for c in chairs:
 		if c.bot == current.waypoint:
