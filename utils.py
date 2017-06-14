@@ -15,7 +15,12 @@ def h_cost(cur,goal):   # add in trail weights, so black are faster
 
 
 def display_list(list):
-	print list
+	for n in list:
+		print n.waypoint.id
+
+def print_map(map):
+	for key in map:
+		print key.id,":",map[key].id
 
 def get_lowest_f(list):
 	low = list[0]
@@ -25,20 +30,32 @@ def get_lowest_f(list):
 			low = node
 	return low
 
-def build_path(list):
+
+def build_map(map):
+	print "map:"
+	start_key = inits.route.start.id
+	print "start_key" ,start_key
+	#for key in map:
+
+
+
+def build_path(path):
 	print "non-built path:"
-	for n in list:
-		print n.id
+	#remove_dead_ends(path)
+	for n in path:
+		print "neighbors of : " , n.id
+
+
 
 def neighbors(current,pref_level):
 	global trails
 	global chairs
 	neighbors = []
 	for t in trails:
-		if t.top_id == current.waypoint.id and t.weight <= pref_level:
+		if t.top_id == current.id and t.weight <= pref_level:
 			neighbors.append(get_waypoint_with_id(t.bot_id))
 	for c in chairs:
-		if c.bot == current.waypoint:
+		if c.bot == current:
 			neighbors.append(c.top)
 	return neighbors
 
@@ -60,9 +77,11 @@ def get_neighbor_g(neighbor, astar_nodes):
 			return a.g
 
 def update_best_map(best_map,current,n):
-	print "cur map", best_map
+	print "cur map", print_map(best_map)
 	if n not in best_map:
+		print "making a new key"
 		best_map[n] = current.waypoint
 	for key in best_map:
 		if key == n:
+			print "updating key" ,key.id, " to" , current.waypoint.id
 			best_map[key] = current.waypoint

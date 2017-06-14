@@ -36,6 +36,7 @@ def run_astar():
 	astar_nodes.append(start)
 	branch = 1
 	best_map = {}
+	best_map[start.waypoint] = inits.route.finish
 	while(len(open) != 0):
 		print "-------------Branch " + str(branch)
 		print "getting lowest f in open"
@@ -46,10 +47,11 @@ def run_astar():
 			path.append(current.waypoint)
 			print "path found"
 			build_path(path)
+			build_map(best_map)
 			break
 		open.remove(current)
 		closed.append(current)
-		for n in neighbors(current,inits.route.pref):
+		for n in neighbors(current.waypoint,inits.route.pref):
 			if all(n.id != a.waypoint.id for a in astar_nodes): # new astar node for this neigbor
 				print "new astar node:" , n.id
 				temp_astar_node = astar_node(n)
@@ -59,11 +61,11 @@ def run_astar():
 				continue
 			tentative_g = current.g + h_cost(current.waypoint,n)
 			neighbor_astar_node = get_astar_with_id(n.id,astar_nodes)
-			print "neighbor_astar_node:", neighbor_astar_node
-			print "astar_nodes:",astar_nodes
-			print "open:",open
+		#	print "neighbor_astar_node:", neighbor_astar_node
+		#	print "astar_nodes:",astar_nodes
+			#print "open:",open
 			if neighbor_astar_node not in open:
-				print "adding to open"
+			#	print "adding to open"
 				open.append(neighbor_astar_node)
 			if tentative_g >= neighbor_astar_node.g:
 				continue # not a better route
