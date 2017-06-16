@@ -32,7 +32,7 @@ def get_lowest_f(list):
 
 
 def build_map(map):
-	print_map(map)
+	print_map(map) #  write gp data before poping map
 	start_key = inits.route.start
 	print "start: " ,start_key
 	#for key in map:
@@ -49,8 +49,38 @@ def build_map(map):
 		map.pop(current)
 		current = next
 	path.append(inits.route.finish)
+	write_gp_data(path)
 	for i in path:
 		print i.id
+
+def write_gp_data(path):
+	global trails
+	global chairs
+	w_file = open("suggested_waypoints.dat","w")
+	t_file = open("suggested_trails.dat","w")
+	count = 0
+	for i in range(0,len(path)):
+		print i, "----------"
+		for c in chairs:
+			if c.bot == path[i] and c.top == path[i+1]:
+				line = str(path[i].x) + "\t" +str(path[i].y) + "\t" + str(path[i].z) +"\t" + str(count) + "\n\n"
+				w_file.write(line)
+				line = str(c.bot.x) + "\t" +str(c.bot.y) + "\t" + str(c.bot.z) +"\t\n\n"
+				t_file.write(line)
+				line = str(c.top.x) + "\t" +str(c.top.y) + "\t" + str(c.top.z) +"\t\n\n"
+				t_file.write(line)
+		for t in trails:
+			if t.top_id == path[i].id and t.bot_id == path[i+1].id:
+				top = get_waypoint_with_id(t.top_id)
+				bot = get_waypoint_with_id(t.bot_id)
+				line = str(path[i].x) + "\t" +str(path[i].y) + "\t" + str(path[i].z) +"\t" + str(count) + "\n\n"
+				w_file.write(line)
+				line = str(top.x) + "\t" +str(top.y) + "\t" + str(top.z) +"\t\n\n"
+				t_file.write(line)
+				line = str(bot.x) + "\t" +str(bot.y) + "\t" + str(bot.z) +"\t\n\n"
+				t_file.write(line)
+
+		count += 1
 
 def fetch_next_dict_step(current,map):
 	for key in map:

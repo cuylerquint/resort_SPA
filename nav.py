@@ -88,3 +88,5 @@ def run_astar():
 init()
 nav()
 run_astar()
+os.system("killall gnuplot_qt")
+os.system("gnuplot routed_resort.gp -p")
