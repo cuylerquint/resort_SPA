@@ -78,10 +78,11 @@ def get_neighbor_g(neighbor, astar_nodes):
 
 def update_best_map(best_map,current,n):
 	print "cur map", print_map(best_map)
-	if n not in best_map:
+	if current.waypoint not in best_map:
 		print "making a new key"
-		best_map[n] = current.waypoint
+		#best_map[n] = current.waypoint
+		best_map[current.waypoint] = n
 	for key in best_map:
-		if key == n:
+		if key == current.waypoint:
 			print "updating key" ,key.id, " to" , current.waypoint.id
-			best_map[key] = current.waypoint
+			best_map[key] = n
