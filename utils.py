@@ -32,12 +32,30 @@ def get_lowest_f(list):
 
 
 def build_map(map):
-	print "map:"
-	start_key = inits.route.start.id
-	print "start_key" ,start_key
+	print_map(map)
+	start_key = inits.route.start
+	print "start: " ,start_key
 	#for key in map:
+	current = start_key
+	path = []
+	while current != inits.route.finish and current != None:
+		path.append(current)
+	#	print "------------"
+		#print_map(map)
+		#print "current: " , current.id
+		next = fetch_next_dict_step(current,map)
+		#print "next: ", next.id, " "
+		#print next.id
+		map.pop(current)
+		current = next
+	path.append(inits.route.finish)
+	for i in path:
+		print i.id
 
-
+def fetch_next_dict_step(current,map):
+	for key in map:
+		if key == current:
+			return map[current]
 
 def build_path(path):
 	print "non-built path:"
@@ -84,5 +102,5 @@ def update_best_map(best_map,current,n):
 		best_map[current.waypoint] = n
 	for key in best_map:
 		if key == current.waypoint:
-			print "updating key" ,key.id, " to" , current.waypoint.id
+			print "updating key" ,key.id, " to" , n.id
 			best_map[key] = n

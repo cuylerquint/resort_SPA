@@ -51,6 +51,8 @@ def run_astar():
 			break
 		open.remove(current)
 		closed.append(current)
+		best_score = 9999999999
+		best = ""
 		for n in neighbors(current.waypoint,inits.route.pref):
 			if all(n.id != a.waypoint.id for a in astar_nodes): # new astar node for this neigbor
 				print "new astar node:" , n.id
@@ -71,9 +73,13 @@ def run_astar():
 				continue # not a better route
 			if current.waypoint not in path:
 				path.append(current.waypoint)
-			update_best_map(best_map,current,n)
 			neighbor_astar_node.g = tentative_g
 			neighbor_astar_node.f = neighbor_astar_node.g + h_cost(n,inits.route.finish)
+			print "n: ", n.id, " g: " , neighbor_astar_node.f, " best: ", best_score
+			if neighbor_astar_node.f < best_score:
+				best = n
+				best_score = neighbor_astar_node.f
+		update_best_map(best_map,current,best)
 		branch += 1
 
 
